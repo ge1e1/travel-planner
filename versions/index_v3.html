@@ -1,0 +1,2013 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>趣行 Travel · 旅行规划</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;700;900&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#F0F4EB', 100: '#DCE9D6', 200: '#B9D4B1', 300: '#8FBB88',
+              400: '#669F63', 500: '#4A844D', 600: '#2E5C43', 700: '#28503B',
+              800: '#214433', 900: '#1A362A'
+            },
+            accent: {
+              50: '#FDF2EA', 100: '#FAE1CF', 200: '#F6C5A3', 300: '#F2A676',
+              400: '#EE8A52', 500: '#E86A33', 600: '#CE5626', 700: '#AD451C'
+            },
+            paper: '#F8F5E6',
+            ink: '#1E293B'
+          },
+          fontFamily: {
+            sans: ['"ZCOOL KuaiLe"', '"Ma Shan Zheng"', '"Noto Sans SC"', 'system-ui', '-apple-system', 'sans-serif'],
+            hand: ['"Ma Shan Zheng"', '"ZCOOL KuaiLe"', '"Noto Sans SC"', 'cursive']
+          },
+          boxShadow: {
+            card: '3px 3px 0px 0px rgba(30,41,59,1)',
+            sm: '2px 2px 0px 0px rgba(30,41,59,1)',
+            md: '2px 2px 0px 0px rgba(30,41,59,1)',
+            xl: '4px 4px 0px 0px rgba(30,41,59,1)',
+            '2xl': '8px 8px 0px 0px rgba(30,41,59,1)'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    /* ===== 手绘复古治愈系 · 全局组件皮肤 ===== */
+
+    /* 纸张质感：奶油纸面 + 手账波点纹理 */
+    .paper {
+      background-color: #F8F5E6;
+      background-image: radial-gradient(rgba(46, 92, 67, 0.07) 1.2px, transparent 1.2px);
+      background-size: 20px 20px;
+    }
+
+    /* 大标题统一马善政毛笔楷书 */
+    h1, h2, h3 {
+      font-family: 'Ma Shan Zheng', 'ZCOOL KuaiLe', 'Noto Sans SC', cursive;
+    }
+
+    /* 所有贴纸卡片（含 JS 动态渲染的卡片）自动获得墨线粗边框 */
+    .shadow-card {
+      border: 2px solid #1E293B;
+    }
+
+    /* 风格芯片：白底墨框硬阴影，hover 时"按进纸里" */
+    .chip {
+      @apply cursor-pointer rounded-full border-2 border-slate-800 bg-white px-4 py-1.5 text-sm text-slate-700 shadow-[2px_2px_0px_0px_rgba(30,41,59,1)] transition hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none;
+    }
+    .chip-active {
+      @apply bg-primary-600 text-white hover:text-white;
+    }
+    .tag {
+      @apply rounded-full border border-dashed border-slate-500 bg-white px-2.5 py-0.5 text-xs text-slate-600;
+    }
+    .field {
+      @apply w-full rounded-2xl border-2 border-slate-800 bg-white px-4 py-2.5 text-sm text-slate-800 outline-none shadow-[2px_2px_0px_0px_rgba(30,41,59,1)] transition placeholder-slate-400 focus:translate-x-[2px] focus:translate-y-[2px] focus:border-accent-500 focus:shadow-none;
+    }
+    .view-btn {
+      @apply cursor-pointer rounded-full px-4 py-1.5 text-xs font-semibold text-slate-500 transition hover:text-primary-700 sm:text-sm;
+    }
+    .view-btn-active {
+      @apply bg-primary-600 text-white shadow-[2px_2px_0px_0px_rgba(30,41,59,1)];
+    }
+    .del-btn {
+      @apply shrink-0 self-start rounded-full border border-dashed border-transparent px-1.5 text-lg leading-none text-slate-400 transition hover:border-slate-800 hover:bg-accent-100 hover:text-accent-600;
+    }
+    .dragging {
+      @apply opacity-40 -rotate-2;
+    }
+    .drop-target {
+      @apply rounded-2xl bg-primary-100 ring-2 ring-primary-400;
+    }
+    .ai-tag {
+      @apply ml-1 inline-block rounded-full border-2 border-slate-800 bg-accent-500 px-2.5 py-0.5 align-middle text-[11px] font-semibold text-white shadow-[2px_2px_0px_0px_rgba(30,41,59,1)];
+    }
+    .nav-btn {
+      @apply rounded-full border-2 border-slate-800 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-[2px_2px_0px_0px_rgba(30,41,59,1)] transition hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none;
+    }
+    .nav-btn-active {
+      @apply bg-primary-600 text-white;
+    }
+    .ai-guide-trigger {
+      @apply inline cursor-pointer font-medium decoration-wavy decoration-accent-500/70 underline-offset-4 transition hover:text-accent-600 hover:underline;
+    }
+    .ai-guide-flag {
+      @apply ml-1 inline-block whitespace-nowrap rounded-full border border-dashed border-accent-500/60 bg-accent-50 px-1.5 py-px align-middle text-[10px] font-semibold text-accent-600 transition group-hover:bg-accent-100;
+    }
+    /* ===== 原 Hero 深色变体：Hero 已改为奶油纸面，保留类名仅做轻微适配 ===== */
+    .field-dark {
+      @apply bg-white/70;
+    }
+    .chip-dark {
+      @apply bg-white/80;
+    }
+    .chip-dark.chip-active {
+      @apply bg-primary-600 text-white;
+    }
+    .view-btn-dark {
+      @apply text-slate-500;
+    }
+    .view-btn-dark.view-btn-active {
+      @apply bg-primary-600 text-white shadow-[2px_2px_0px_0px_rgba(30,41,59,1)];
+    }
+  </style>
+</head>
+
+<body class="paper font-sans text-slate-800 antialiased">
+
+  <!-- ============ 顶部导航 ============ -->
+  <header class="paper fixed inset-x-0 top-0 z-40 border-b-2 border-slate-800">
+    <nav class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+      <a href="#hero" class="flex items-center gap-2">
+        <span class="flex h-9 w-9 items-center justify-center rounded-2xl border-2 border-slate-800 bg-primary-600 text-lg text-white shadow-[2px_2px_0px_0px_rgba(30,41,59,1)]">✈️</span>
+        <span class="text-lg font-bold tracking-wide text-slate-900">趣行 <span class="text-primary-600">Travel</span></span>
+      </a>
+
+      <ul class="hidden items-center gap-8 text-sm font-medium text-slate-600 md:flex">
+        <li><a href="#hero" class="transition hover:text-primary-600">首页</a></li>
+        <li><a href="#destinations" class="transition hover:text-primary-600">热门目的地</a></li>
+        <li><a href="#itinerary-section" class="transition hover:text-primary-600">我的行程</a></li>
+      </ul>
+
+      <div class="hidden items-center gap-2 md:flex">
+        <button id="wishlist-btn" type="button" class="nav-btn">❤️ 心愿单</button>
+        <a href="#search" class="rounded-full border-2 border-slate-800 bg-primary-600 px-5 py-2 text-sm font-semibold text-white shadow-[2px_2px_0px_0px_rgba(30,41,59,1)] transition hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none">
+          开始规划
+        </a>
+      </div>
+
+      <!-- 汉堡按钮：第五步接 JS -->
+      <button id="menu-btn" type="button"
+        class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border-2 border-slate-800 bg-white text-slate-700 shadow-[2px_2px_0px_0px_rgba(30,41,59,1)] transition hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none md:hidden"
+        aria-label="打开菜单" aria-expanded="false">
+        <svg class="h-6 w-6 transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+    </nav>
+
+    <!-- 移动端菜单面板：第五步接 JS -->
+    <div id="mobile-menu" class="paper hidden border-t-2 border-slate-800 px-4 pb-4 pt-2 md:hidden">
+      <ul class="space-y-1 text-sm font-medium text-slate-700">
+        <li><a href="#hero" class="block rounded-lg px-3 py-2 hover:bg-primary-50 hover:text-primary-700">首页</a></li>
+        <li><a href="#destinations" class="block rounded-lg px-3 py-2 hover:bg-primary-50 hover:text-primary-700">热门目的地</a></li>
+        <li><a href="#itinerary-section" class="block rounded-lg px-3 py-2 hover:bg-primary-50 hover:text-primary-700">我的行程</a></li>
+        <li><a href="#search" class="mt-1 block rounded-full border-2 border-slate-800 bg-primary-600 px-3 py-2 text-center font-semibold text-white shadow-[2px_2px_0px_0px_rgba(30,41,59,1)]">开始规划</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <!-- ============ Hero + 搜索区 ============ -->
+  <section id="hero" class="paper relative overflow-hidden pt-16">
+    <!-- 复古色晕：两团柔和水彩悄悄晕染在奶油纸面上 -->
+    <div class="pointer-events-none absolute -left-24 -top-24 h-[26rem] w-[26rem] rounded-full bg-primary-200/50 blur-3xl"></div>
+    <div class="pointer-events-none absolute -bottom-32 -right-20 h-[30rem] w-[30rem] rounded-full bg-accent-200/40 blur-3xl"></div>
+
+    <div class="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 md:py-28 lg:px-8">
+      <div class="mx-auto max-w-3xl text-center">
+        <p class="mb-3 text-xs font-semibold uppercase tracking-[0.35em] text-accent-600">Travel Planner</p>
+        <h1 class="text-3xl font-black leading-tight text-slate-800 sm:text-5xl">
+          去哪儿玩，交给 <span class="text-primary-600">趣行</span>
+        </h1>
+        <p class="mx-auto mt-4 max-w-xl text-sm text-slate-600 sm:text-base">
+          输入目的地和天数，选择你的旅行风格，一键生成专属行程。
+        </p>
+      </div>
+
+      <!-- 搜索表单 -->
+      <div id="search" class="mx-auto mt-10 max-w-4xl scroll-mt-24">
+        <form id="search-form"
+          class="rounded-3xl border-2 border-slate-800 bg-white p-4 shadow-[6px_6px_0px_0px_rgba(30,41,59,1)] sm:p-6">
+          <div class="flex flex-col gap-4 md:flex-row md:items-end">
+            <label class="flex-1">
+              <span class="mb-1.5 block text-xs font-semibold text-slate-600">目的地</span>
+              <input id="search-destination" type="text" placeholder="例如：成都、大理、三亚"
+                class="field field-dark" autocomplete="off" />
+            </label>
+
+            <label class="md:w-32">
+              <span class="mb-1.5 block text-xs font-semibold text-slate-600">天数</span>
+              <select id="search-days" class="field field-dark">
+                <option value="">智能推荐</option>
+                <option value="1">1 天</option>
+                <option value="2">2 天</option>
+                <option value="3">3 天</option>
+                <option value="4">4 天</option>
+                <option value="5">5 天</option>
+                <option value="6">6 天</option>
+                <option value="7">7 天</option>
+                <option value="8">8 天及以上</option>
+              </select>
+            </label>
+
+            <label class="md:w-40">
+              <span class="mb-1.5 block text-xs font-semibold text-slate-600">预算档位</span>
+              <select id="search-budget" class="field field-dark">
+                <option value="">不限</option>
+                <option value="300">穷游 ¥300/天</option>
+                <option value="800">舒适 ¥800/天</option>
+                <option value="2000">奢华 ¥2000/天</option>
+              </select>
+            </label>
+
+            <button type="submit"
+              class="h-[42px] shrink-0 rounded-2xl border-2 border-slate-800 bg-accent-500 px-8 text-sm font-semibold text-white shadow-[3px_3px_0px_0px_rgba(30,41,59,1)] transition hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none active:scale-95">
+              生成行程
+            </button>
+          </div>
+
+          <div class="mt-4 flex flex-wrap items-center gap-2 border-t-2 border-dashed border-slate-200 pt-4">
+            <span class="text-xs font-semibold text-slate-600">规划引擎</span>
+            <div id="engine-switch" class="inline-flex rounded-full border-2 border-slate-800 bg-white p-1 shadow-[2px_2px_0px_0px_rgba(30,41,59,1)]">
+              <button type="button" data-engine="local" class="view-btn view-btn-dark view-btn-active">⚡ 本地极速规划</button>
+              <button type="button" data-engine="ai" class="view-btn view-btn-dark">🤖 AI 智能规划</button>
+            </div>
+          </div>
+
+          <div class="mt-4 border-t-2 border-dashed border-slate-200 pt-4">
+            <p class="mb-2 text-xs font-semibold text-slate-600">旅行风格（可多选）</p>
+            <div id="style-chips" class="flex flex-wrap gap-2">
+              <button type="button" data-style="relax"  class="chip chip-dark">🏝️ 放松度假</button>
+              <button type="button" data-style="intense" class="chip chip-dark">⚡ 特种兵式</button>
+              <button type="button" data-style="nature" class="chip chip-dark">🏔️ 自然景观</button>
+              <button type="button" data-style="food"   class="chip chip-dark">🍜 美食探索</button>
+              <button type="button" data-style="culture" class="chip chip-dark">🏛️ 人文历史</button>
+              <button type="button" data-style="hidden" class="chip chip-dark">🎒 小众深度</button>
+            </div>
+          </div>
+        </form>
+
+        <!-- AI 引擎设置：配置仅保存在本机浏览器 localStorage -->
+        <details class="mx-auto mt-3 max-w-xl">
+          <summary
+            class="cursor-pointer list-none rounded-full border-2 border-slate-800 bg-white px-4 py-2 text-center text-xs font-medium text-slate-700 shadow-[2px_2px_0px_0px_rgba(30,41,59,1)] transition hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none [&::-webkit-details-marker]:hidden">
+            ⚙️ AI 引擎设置
+          </summary>
+          <div class="mt-2 space-y-3 rounded-3xl border-2 border-slate-800 bg-white p-4 shadow-[4px_4px_0px_0px_rgba(30,41,59,1)] sm:p-5">
+            <label class="block">
+              <span class="mb-1.5 block text-xs font-semibold text-slate-600">AI API Key（硅基流动）</span>
+              <input id="ai-api-key" type="password" placeholder="粘贴你的硅基流动 API Key（仅保存在本机浏览器）" class="field field-dark" autocomplete="off" />
+            </label>
+            <label class="block">
+              <span class="mb-1.5 block text-xs font-semibold text-slate-600">模型名称</span>
+              <input id="ai-model-name" type="text" placeholder="Qwen/Qwen2.5-7B-Instruct" class="field field-dark" autocomplete="off" />
+              <span class="mt-1 block text-[11px] text-slate-400">默认 Qwen/Qwen2.5-7B-Instruct · 硅基流动免费模型，注册即送 2000 万 Token</span>
+            </label>
+            <button id="ai-save-btn" type="button"
+              class="w-full rounded-2xl border-2 border-slate-800 bg-primary-600 py-2.5 text-sm font-semibold text-white shadow-[3px_3px_0px_0px_rgba(30,41,59,1)] transition hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none active:scale-[0.98]">
+              保存配置
+            </button>
+            <p id="ai-save-tip" class="hidden text-center text-xs font-medium text-primary-600">✓ 配置已保存到本地浏览器</p>
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 热门目的地卡片 ============ -->
+  <section id="destinations" class="paper scroll-mt-20 py-16 sm:py-20">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="mb-10 flex flex-col items-center justify-between gap-3 sm:flex-row">
+        <div class="text-center sm:text-left">
+          <h2 class="text-2xl font-bold text-slate-900 sm:text-3xl">热门目的地</h2>
+          <p class="mt-2 text-sm text-slate-500">精选目的地，点击卡片查看详情</p>
+        </div>
+        <button id="shuffle-btn" type="button"
+          class="shrink-0 rounded-full border-2 border-slate-800 bg-white px-5 py-2 text-sm font-medium text-slate-700 shadow-[2px_2px_0px_0px_rgba(30,41,59,1)] transition hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none active:scale-95">
+          🔄 换一批
+        </button>
+      </div>
+
+      <div id="destination-grid" class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <!-- 卡片由 JS 动态渲染（见底部 script 第二步部分） -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 行程结果区（搜索后展示） ============ -->
+  <section id="itinerary-section" class="hidden scroll-mt-20 paper py-16 sm:py-20">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="mb-10 text-center">
+        <div class="flex flex-col items-center justify-between gap-3 sm:flex-row">
+          <h2 class="text-2xl font-bold text-slate-900 sm:text-3xl">你的专属行程</h2>
+          <div class="flex shrink-0 items-center gap-2">
+            <!-- 复制行程：生成行程后显示 -->
+            <button id="copy-btn" type="button"
+              class="hidden rounded-full border-2 border-slate-800 bg-white px-4 py-1.5 text-xs font-semibold text-slate-700 shadow-[2px_2px_0px_0px_rgba(30,41,59,1)] transition hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none sm:text-sm">
+              📋 复制行程
+            </button>
+            <!-- 视图切换：生成行程后显示 -->
+            <div id="view-toggle" class="hidden inline-flex rounded-full border-2 border-slate-800 bg-white p-1 shadow-[2px_2px_0px_0px_rgba(30,41,59,1)]">
+              <button id="view-card" type="button" class="view-btn">📋 卡片视图</button>
+              <button id="view-timeline" type="button" class="view-btn">🕒 时间轴视图</button>
+            </div>
+          </div>
+        </div>
+        <p id="itinerary-summary" class="mt-2 text-sm text-slate-500"></p>
+        <!-- 预算胶囊：选择具体档位后才显示 -->
+        <p id="budget-pill" class="mt-3 hidden inline-block rounded-full bg-accent-100 px-4 py-1.5 text-sm font-semibold text-accent-700 shadow-card">
+          💰 预估人均花费：约 <span id="budget-amount">0</span> 元（不包含大交通）
+        </p>
+
+        <!-- AI 微调面板：仅 AI 生成的行程显示 -->
+        <div id="refine-panel" class="mx-auto mt-4 hidden max-w-2xl">
+          <div class="flex flex-col gap-2 sm:flex-row">
+            <input id="refine-input" type="text" placeholder='例如："把第二天下午换成咖啡馆，不要爬山"'
+              class="field flex-1" autocomplete="off" />
+            <button id="refine-btn" type="button"
+              class="h-[42px] shrink-0 rounded-2xl border-2 border-slate-800 bg-primary-600 px-6 text-sm font-semibold text-white shadow-[3px_3px_0px_0px_rgba(30,41,59,1)] transition hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-60">
+              发送微调
+            </button>
+          </div>
+          <p class="mt-1.5 text-center text-[11px] text-slate-400">AI 将基于当前行程做局部修改，其余安排保持不变</p>
+        </div>
+
+        <!-- 天气面板：JS 异步填充，获取失败只提示，不影响行程展示 -->
+        <div id="weather-panel" class="mt-4 hidden">
+          <div id="weather-cards" class="mx-auto flex max-w-3xl flex-wrap justify-center gap-3"></div>
+        </div>
+      </div>
+
+      <div id="itinerary-content" class="grid gap-6 lg:grid-cols-2">
+        <div id="itinerary-empty"
+          class="rounded-3xl border-2 border-dashed border-slate-800 p-10 text-center text-sm text-slate-400 lg:col-span-2">
+          在上方搜索后，生成的行程会显示在这里。
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 页脚 ============ -->
+  <footer class="border-t-2 border-slate-800 bg-primary-800 py-10 text-primary-100">
+    <div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 text-sm sm:px-6 md:flex-row lg:px-8">
+      <p>© 2026 趣行 Travel · 单页旅行规划 Demo</p>
+      <ul class="flex gap-6">
+        <li><a href="#hero" class="transition hover:text-white">首页</a></li>
+        <li><a href="#destinations" class="transition hover:text-white">热门目的地</a></li>
+        <li><a href="#itinerary-section" class="transition hover:text-white">我的行程</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <!-- ============ 目的地详情弹窗（默认隐藏） ============ -->
+  <div id="modal" role="dialog" aria-modal="true"
+    class="invisible fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 opacity-0 backdrop-blur-sm transition-all duration-300 sm:p-6">
+
+    <div id="modal-panel"
+      class="max-h-[90vh] w-full max-w-2xl translate-y-4 scale-95 overflow-y-auto rounded-3xl border-2 border-slate-800 bg-white shadow-2xl transition-all duration-300">
+
+      <!-- 大图 + 标题 + 关闭按钮 -->
+      <div class="relative h-56 shrink-0 sm:h-72">
+        <img id="modal-image" src="" alt="" class="h-full w-full object-cover" />
+        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent"></div>
+        <h3 id="modal-title" class="absolute bottom-4 left-5 text-2xl font-bold text-white sm:text-3xl"></h3>
+        <button id="modal-close" type="button" aria-label="关闭弹窗"
+          class="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full border-2 border-slate-800 bg-white text-slate-700 shadow-[2px_2px_0px_0px_rgba(30,41,59,1)] transition hover:rotate-90 hover:bg-accent-100">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- 内容区 -->
+      <div class="p-5 sm:p-6">
+        <div class="flex flex-wrap items-center gap-2">
+          <span id="modal-days" class="rounded-full bg-primary-50 px-2.5 py-0.5 text-xs font-medium text-primary-700"></span>
+          <div id="modal-tags" class="flex flex-wrap gap-1.5"></div>
+        </div>
+
+        <p id="modal-description" class="mt-4 text-sm leading-relaxed text-slate-600"></p>
+
+        <div class="mt-5">
+          <h4 class="mb-3 text-sm font-bold text-slate-900">目的地亮点</h4>
+          <ul id="modal-highlights" class="space-y-2 text-sm text-slate-600"></ul>
+        </div>
+
+        <!-- 位置示意：由 JS 渲染 3x3 瓦片拼合的静态地图 -->
+        <div class="mt-5">
+          <h4 class="mb-3 text-sm font-bold text-slate-900">位置示意</h4>
+          <div id="modal-map" class="grid h-48 grid-cols-3 overflow-hidden rounded-2xl border-2 border-slate-800"></div>
+          <p id="map-note" class="mt-1.5 text-right text-[10px] text-slate-400"></p>
+        </div>
+
+        <!-- 按钮逻辑将在第四步接入 -->
+        <button id="modal-plan" type="button"
+          class="mt-6 w-full rounded-2xl border-2 border-slate-800 bg-primary-600 py-3 text-sm font-semibold text-white shadow-[3px_3px_0px_0px_rgba(30,41,59,1)] transition hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none active:scale-[0.98]">
+          用此目的地生成行程 →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 景点 AI 攻略弹窗（独立于上方 #modal，互不影响） ============ -->
+  <div id="ai-guide-modal" role="dialog" aria-modal="true"
+    class="invisible fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 p-4 opacity-0 backdrop-blur-sm transition-all duration-300 sm:p-6">
+
+    <div id="ai-guide-panel"
+      class="max-h-[85vh] w-full max-w-lg translate-y-4 scale-95 overflow-y-auto rounded-3xl border-2 border-slate-800 bg-white shadow-2xl transition-all duration-300">
+
+      <!-- 标题栏 + 关闭按钮 -->
+      <div class="sticky top-0 flex items-center justify-between border-b-2 border-slate-800 bg-white px-5 py-4">
+        <h3 id="ai-guide-title" class="truncate text-base font-bold text-slate-900">✨ AI 攻略</h3>
+        <button id="ai-guide-close" type="button" aria-label="关闭攻略弹窗"
+          class="ml-3 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-slate-800 text-slate-500 shadow-[2px_2px_0px_0px_rgba(30,41,59,1)] transition hover:rotate-90 hover:text-accent-600">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- 内容区：加载中 / 成功 / 失败 三种状态由 JS 切换 -->
+      <div class="px-5 py-5 sm:px-6">
+        <!-- 状态一：加载中 -->
+        <div id="ai-guide-loading" class="hidden">
+          <div class="flex flex-col items-center gap-4 py-10">
+            <span class="h-10 w-10 animate-spin rounded-full border-4 border-primary-200 border-t-primary-600"></span>
+            <p class="text-sm font-medium text-slate-600">AI 正在整理「<span id="ai-guide-loading-name"></span>」的攻略…</p>
+            <p class="text-xs text-slate-400">硅基流动 AI 大模型驱动 · 通常需要 5~15 秒</p>
+          </div>
+        </div>
+
+        <!-- 状态二：成功（纯文本，保留 AI 分段换行） -->
+        <p id="ai-guide-content" class="hidden whitespace-pre-wrap text-sm leading-relaxed text-slate-700"></p>
+
+        <!-- 状态三：失败 -->
+        <div id="ai-guide-error" class="hidden">
+          <div class="rounded-3xl border-2 border-dashed border-slate-800 bg-white py-10 text-center">
+            <p class="text-3xl">😕</p>
+            <p id="ai-guide-error-msg" class="mt-3 text-sm font-medium text-slate-700">AI 攻略获取失败，请稍后重试</p>
+            <p class="mt-1 text-xs text-slate-400">可在搜索框下方的「AI 引擎设置」中检查 Key 与模型名称</p>
+            <button id="ai-guide-retry" type="button"
+              class="mt-4 rounded-full border-2 border-slate-800 bg-primary-600 px-6 py-2 text-sm font-semibold text-white shadow-[2px_2px_0px_0px_rgba(30,41,59,1)] transition hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none active:scale-95">
+              重试
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ JS 逻辑（第二~五步补充） ============ -->
+  <script>
+    // ============================================================
+    // 第二步：目的地数据 + 卡片动态渲染
+    // ============================================================
+
+    // 内置目的地示例数据（JSON 数组）
+    const DESTINATIONS = [
+      {
+        id: 'sanya',
+        name: '三亚',
+        image: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=70',
+        suggestedDays: 3,
+        description: '热带海滨度假城市，阳光沙滩与椰林海风，适合放松身心。',
+        tags: ['海岛', '自然', '放松'],
+        highlights: ['亚龙湾热带天堂森林公园', '蜈支洲岛', '天涯海角', '南山文化旅游区', '第一市场海鲜加工', '亚龙湾沙滩', '大东海旅游区', '三亚湾椰梦长廊', '后海村冲浪基地', '西岛', '鹿回头风景区', '海棠湾免税城', '大小洞天', '崖州古城', '临春岭森林公园'],
+        lng: 109.511909,
+        lat: 18.252847,
+      },
+      {
+        id: 'chengdu',
+        name: '成都',
+        image: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=70',
+        suggestedDays: 4,
+        description: '火锅与熊猫之城，慢节奏生活与市井烟火的完美结合。',
+        tags: ['美食', '人文', '放松'],
+        highlights: ['大熊猫繁育研究基地', '武侯祠', '锦里古街', '宽窄巷子', '人民公园', '都江堰', '青城山', '杜甫草堂', '春熙路太古里', '东郊记忆', '文殊院', '金沙遗址博物馆', '西岭雪山', '黄龙溪古镇', '龙泉山城市森林公园'],
+        lng: 104.065735,
+        lat: 30.659462,
+      },
+      {
+        id: 'dali',
+        name: '大理',
+        image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=70',
+        suggestedDays: 3,
+        description: '苍山洱海之间的风花雪月，骑行环湖与古城漫步的双重体验。',
+        tags: ['自然', '小众', '人文'],
+        highlights: ['洱海生态廊道', '大理古城', '崇圣寺三塔', '苍山世界地质公园', '喜洲古镇', '双廊古镇', '海舌生态公园', '沙溪古镇', '鸡足山', '小普陀', '蝴蝶泉', '天龙八部影视城', '寂照庵', '才村码头', '挖色镇'],
+        lng: 100.225032,
+        lat: 25.598806,
+      },
+      {
+        id: 'beijing',
+        name: '北京',
+        image: 'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?auto=format&fit=crop&w=800&q=70',
+        suggestedDays: 4,
+        description: '千年古都，故宫长城承载厚重历史，胡同与现代都市交织。',
+        tags: ['人文', '历史', '美食'],
+        highlights: ['故宫博物院', '八达岭长城', '颐和园', '天坛公园', '什刹海与南锣鼓巷', '天安门广场', '雍和宫', '圆明园遗址公园', '景山公园', '北海公园', '慕田峪长城', '798艺术区', '国家博物馆', '环球影城', '香山公园'],
+        lng: 116.407526,
+        lat: 39.904030,
+      },
+      {
+        id: 'xian',
+        name: '西安',
+        image: 'https://images.unsplash.com/photo-1547981609-4b6bfe67ca0b?auto=format&fit=crop&w=800&q=70',
+        suggestedDays: 3,
+        description: '十三朝古都，兵马俑与古城墙诉说着盛世长安的传奇。',
+        tags: ['人文', '历史', '美食'],
+        highlights: ['秦始皇兵马俑博物馆', '西安城墙', '大雁塔与大唐不夜城', '陕西历史博物馆', '回民街', '华清宫', '钟鼓楼广场', '大明宫国家遗址公园', '小雁塔与西安博物院', '碑林博物馆', '永兴坊', '华山', '长安十二时辰主题街区', '大唐芙蓉园', '曲江池遗址公园'],
+        lng: 108.943842,
+        lat: 34.260938,
+      },
+      {
+        id: 'hangzhou',
+        name: '杭州',
+        image: 'https://images.unsplash.com/photo-1470004914212-05527e49370b?auto=format&fit=crop&w=800&q=70',
+        suggestedDays: 3,
+        description: '人间天堂西湖，山水与茶香交融，江南韵味的代表。',
+        tags: ['自然', '人文', '放松'],
+        highlights: ['西湖风景区', '灵隐寺', '龙井村', '西溪国家湿地公园', '拱宸桥与京杭大运河', '千岛湖', '宋城', '九溪十八涧', '清河坊街', '雷峰塔', '太子湾公园', '良渚古城遗址公园', '法喜寺', '西泠印社', '六和塔'],
+        lng: 120.155070,
+        lat: 30.274085,
+      },
+      {
+        id: 'xiamen',
+        name: '厦门',
+        image: 'https://images.unsplash.com/photo-1506929562872-bb421503ef21?auto=format&fit=crop&w=800&q=70',
+        suggestedDays: 3,
+        description: '文艺清新的海岛城市，鼓浪屿老别墅与环岛路的海风。',
+        tags: ['海岛', '文艺', '美食'],
+        highlights: ['鼓浪屿', '环岛路', '南普陀寺', '曾厝垵文创村', '八市海鲜市场', '厦门大学与芙蓉隧道', '沙坡尾艺术西区', '中山路步行街', '集美学村', '白城沙滩', '五缘湾湿地公园', '铁路文化公园', '胡里山炮台', '园林植物园', '云水谣古镇'],
+        lng: 118.088909,
+        lat: 24.479829,
+      },
+      {
+        id: 'zhangjiajie',
+        name: '张家界',
+        image: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=800&q=70',
+        suggestedDays: 4,
+        description: '奇峰三千秀水八百，阿凡达取景地般的奇幻山水。',
+        tags: ['自然', '刺激', '小众'],
+        highlights: ['张家界国家森林公园（袁家界）', '金鞭溪', '天门山玻璃栈道', '十里画廊', '黄龙洞', '大峡谷玻璃桥', '宝峰湖', '杨家界', '天子山', '百龙天梯', '凤凰古城', '芙蓉镇', '土家风情园', '溪布街', '茅岩河漂流'],
+        lng: 110.479321,
+        lat: 29.127401,
+      },
+      {
+        id: 'chongqing',
+        name: '重庆',
+        image: 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=800&q=70',
+        suggestedDays: 4,
+        description: '8D魔幻山城，火锅、轻轨穿楼与两江夜景的双重诱惑。',
+        tags: ['山城', '美食', '刺激'],
+        highlights: ['洪崖洞', '磁器口古镇', '长江索道', '武隆天生三桥', '大足石刻', '李子坝轻轨穿楼', '解放碑步行街', '南山一棵树观景台', '白公馆与渣滓洞', '朝天门码头', '鹅岭二厂文创园', '山城步道', '仙女山国家森林公园', '奥陶纪乐园', '两江夜游'],
+        lng: 106.551556,
+        lat: 29.563009,
+      },
+      {
+        id: 'shanghai',
+        name: '上海',
+        image: 'https://images.unsplash.com/photo-1474181487882-5abf3f0ba6c2?auto=format&fit=crop&w=800&q=70',
+        suggestedDays: 4,
+        description: '摩登都市与老弄堂交融，外滩夜色里的国际大都会。',
+        tags: ['都市', '时尚', '亲子'],
+        highlights: ['外滩', '豫园与城隍庙', '东方明珠', '南京路步行街', '田子坊', '武康路', '上海迪士尼乐园', '朱家角古镇', '上海中心大厦观景台', '上海博物馆', '静安寺', '新天地', '1933老场坊', '崇明东滩湿地', '徐家汇源'],
+        lng: 121.473701,
+        lat: 31.230416,
+      },
+      {
+        id: 'nanjing',
+        name: '南京',
+        image: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=800&q=70',
+        suggestedDays: 3,
+        description: '六朝古都，梧桐树下的厚重历史与秦淮河畔的温柔。',
+        tags: ['人文', '历史', '自然'],
+        highlights: ['中山陵', '夫子庙与秦淮河', '明孝陵', '总统府', '玄武湖公园', '南京博物院', '侵华日军南京大屠杀遇难同胞纪念馆', '鸡鸣寺', '栖霞山', '老门东', '牛首山', '南京眼步行桥', '陵园路梧桐大道', '汤山温泉', '大报恩寺遗址'],
+        lng: 118.796877,
+        lat: 32.060255,
+      },
+      {
+        id: 'suzhou',
+        name: '苏州',
+        image: 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?auto=format&fit=crop&w=800&q=70',
+        suggestedDays: 3,
+        description: '东方水城，拙政园的移步换景与平江路的评弹小调。',
+        tags: ['园林', '人文', '小众'],
+        highlights: ['拙政园', '虎丘', '平江路历史街区', '苏州博物馆', '山塘街', '留园', '网师园', '金鸡湖', '周庄古镇', '同里古镇', '寒山寺', '天平山', '甪直古镇', '阳澄湖', '东方之门'],
+        lng: 120.585316,
+        lat: 31.298831,
+      },
+      {
+        id: 'guangzhou',
+        name: '广州',
+        image: 'https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?auto=format&fit=crop&w=800&q=70',
+        suggestedDays: 3,
+        description: '千年商都，一盅两件的早茶与珠江两岸的璀璨夜景。',
+        tags: ['美食', '都市', '人文'],
+        highlights: ['广州塔（小蛮腰）', '陈家祠', '沙面岛', '上下九步行街', '珠江夜游', '白云山', '越秀公园与五羊雕像', '永庆坊', '广东省博物馆', '长隆野生动物世界', '花城广场', '太古仓码头', '小洲村', '石室圣心大教堂', '海心桥'],
+        lng: 113.264434,
+        lat: 23.129162,
+      },
+      {
+        id: 'shenzhen',
+        name: '深圳',
+        image: 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?auto=format&fit=crop&w=800&q=70',
+        suggestedDays: 3,
+        description: '年轻创新的移民城市，主题公园、海滨栈道与科技范儿。',
+        tags: ['都市', '亲子', '海滨'],
+        highlights: ['世界之窗', '大梅沙海滨公园', '深圳湾公园', '东部华侨城', '欢乐谷', '莲花山公园', '大鹏所城', '较场尾', '甘坑客家小镇', '深圳博物馆', '华强北', '梧桐山', '南头古城', '海上世界', '人才公园'],
+        lng: 114.057868,
+        lat: 22.543099,
+      },
+      {
+        id: 'tianjin',
+        name: '天津',
+        image: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=800&q=70',
+        suggestedDays: 2,
+        description: '九河下梢的哏都，洋楼、相声与煎饼果子的幽默之城。',
+        tags: ['人文', '美食', '休闲'],
+        highlights: ['五大道', '意式风情区', '天津之眼', '古文化街', '瓷房子', '海河夜游船', '西开教堂', '天津博物馆', '滨江道商业街', '盘山', '大悲禅院', '民园广场', '国家海洋博物馆', '滨海新区图书馆', '杨柳青古镇'],
+        lng: 117.200983,
+        lat: 39.084158,
+      },
+      {
+        id: 'qingdao',
+        name: '青岛',
+        image: 'https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=800&q=70',
+        suggestedDays: 3,
+        description: '红瓦绿树、碧海蓝天，哈啤酒吃蛤蜊的山海之城。',
+        tags: ['海滨', '自然', '美食'],
+        highlights: ['栈桥', '八大关', '崂山', '五四广场', '青岛啤酒博物馆', '小青岛', '圣弥厄尔天主教堂', '金沙滩', '第一海水浴场', '信号山公园', '大学路与鱼山路转角', '奥帆中心', '青岛极地海洋世界', '台东步行街', '小鱼山'],
+        lng: 120.382639,
+        lat: 36.067082,
+      },
+      {
+        id: 'dalian',
+        name: '大连',
+        image: 'https://images.unsplash.com/photo-1473116763249-2faaef81ccda?auto=format&fit=crop&w=800&q=70',
+        suggestedDays: 3,
+        description: '北方明珠，广场之城与滨海路的浪漫山海风光。',
+        tags: ['海滨', '浪漫', '亲子'],
+        highlights: ['星海广场', '老虎滩海洋公园', '滨海路', '金石滩', '旅顺白玉山', '棒棰岛', '大连森林动物园', '渔人码头', '中山广场', '东港音乐喷泉', '发现王国', '俄罗斯风情街', '冰峪沟', '大黑山', '星海公园'],
+        lng: 121.614682,
+        lat: 38.913594,
+      },
+      {
+        id: 'haerbin',
+        name: '哈尔滨',
+        image: 'https://images.unsplash.com/photo-1418985991508-e47386d96a71?auto=format&fit=crop&w=800&q=70',
+        suggestedDays: 3,
+        description: '东方莫斯科，冰雕雪塑与俄式建筑的冬日童话。',
+        tags: ['冰雪', '人文', '异域'],
+        highlights: ['中央大街', '圣索菲亚大教堂', '冰雪大世界', '太阳岛', '松花江畔', '伏尔加庄园', '哈尔滨极地公园', '东北虎林园', '老道外中华巴洛克', '果戈里大街', '哈尔滨大剧院', '亚布力滑雪场', '兆麟公园冰灯游园会', '群力外滩湿地', '斯大林公园'],
+        lng: 126.642464,
+        lat: 45.756967,
+      },
+      {
+        id: 'wuhan',
+        name: '武汉',
+        image: 'https://images.unsplash.com/photo-1465447142348-e9952c393450?auto=format&fit=crop&w=800&q=70',
+        suggestedDays: 3,
+        description: '江城，黄鹤楼远眺长江，樱花与热干面的烟火气。',
+        tags: ['人文', '美食', '自然'],
+        highlights: ['黄鹤楼', '东湖风景区', '户部巷', '武汉大学（樱花季）', '湖北省博物馆', '江汉路步行街', '武汉长江大桥', '楚河汉街', '昙华林', '晴川阁', '归元禅寺', '木兰天池', '汉口江滩', '知音号游轮', '江汉关博物馆'],
+        lng: 114.305469,
+        lat: 30.593298,
+      },
+      {
+        id: 'changsha',
+        name: '长沙',
+        image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=70',
+        suggestedDays: 3,
+        description: '快乐星球，湘江两岸的网红美食与不夜城。',
+        tags: ['美食', '人文', '夜生活'],
+        highlights: ['橘子洲头', '岳麓山', '岳麓书院', '湖南博物院', '太平老街', '坡子街与火宫殿', '天心阁', '杜甫江阁', '梅溪湖大剧院', '谢子龙影像艺术馆', '李自健美术馆', '超级文和友', '靖港古镇', '铜官窑古镇', '大围山森林公园'],
+        lng: 112.938829,
+        lat: 28.228304,
+      },
+      {
+        id: 'luoyang',
+        name: '洛阳',
+        image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=800&q=70',
+        suggestedDays: 3,
+        description: '十三朝古都，龙门石窟与牡丹花城的盛唐旧梦。',
+        tags: ['人文', '历史', '自然'],
+        highlights: ['龙门石窟', '白马寺', '洛邑古城', '应天门', '丽景门', '关林', '隋唐洛阳城遗址公园', '老君山', '白云山', '鸡冠洞', '龙潭大峡谷', '天子驾六博物馆', '洛阳博物馆', '王城公园', '中国国花园'],
+        lng: 112.454040,
+        lat: 34.619682,
+      },
+      {
+        id: 'kunming',
+        name: '昆明',
+        image: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=800&q=70',
+        suggestedDays: 3,
+        description: '春城，四季如春的彩云之南门户，红嘴鸥的冬天。',
+        tags: ['自然', '民族', '休闲'],
+        highlights: ['滇池与海埂大坝', '石林风景区', '云南民族村', '西山龙门', '翠湖公园', '官渡古镇', '大观楼', '金马碧鸡坊', '云南大学银杏道', '圆通寺', '东川红土地', '轿子雪山', '九乡溶洞', '斗南花市', '世界园艺博览园'],
+        lng: 102.712251,
+        lat: 25.040609,
+      },
+      {
+        id: 'lijiang',
+        name: '丽江',
+        image: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=70',
+        suggestedDays: 4,
+        description: '柔软时光，玉龙雪山脚下的古镇与客栈慢生活。',
+        tags: ['小众', '自然', '人文'],
+        highlights: ['丽江古城（大研）', '束河古镇', '玉龙雪山冰川公园', '蓝月谷', '白沙古镇', '拉市海湿地', '黑龙潭公园', '泸沽湖', '虎跳峡', '玉湖村', '文海村', '观音峡', '东巴文化博物馆', '狮子山万古楼', '木府'],
+        lng: 100.229628,
+        lat: 26.901532,
+      },
+      {
+        id: 'xishuangbanna',
+        name: '西双版纳',
+        image: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=800&q=70',
+        suggestedDays: 4,
+        description: '热带雨林与傣族风情，泼水节与星光夜市的热带狂欢。',
+        tags: ['自然', '民族', '小众'],
+        highlights: ['中科院热带植物园', '野象谷', '曼听公园', '西双版纳总佛寺', '告庄西双景星光夜市', '勐泐大佛寺', '傣族园', '原始森林公园', '望天树景区', '基诺山寨', '勐远仙境', '南糯山茶山', '江边夜市', '曼掌文化村', '曼飞龙白塔'],
+        lng: 100.797441,
+        lat: 22.001724,
+      },
+      {
+        id: 'guilin',
+        name: '桂林',
+        image: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=800&q=70',
+        suggestedDays: 4,
+        description: '山水甲天下，漓江烟雨与遇龙河畔的水墨画卷。',
+        tags: ['自然', '山水', '放松'],
+        highlights: ['漓江竹筏（杨堤-兴坪）', '阳朔西街', '遇龙河漂流', '龙脊梯田', '象鼻山', '银子岩', '阳朔十里画廊', '世外桃源', '两江四湖', '东西巷', '靖江王城与独秀峰', '尧山', '古东瀑布', '相公山', '兴坪古镇'],
+        lng: 110.290194,
+        lat: 25.273566,
+      },
+      {
+        id: 'guiyang',
+        name: '贵阳',
+        image: 'https://images.unsplash.com/photo-1432405972618-c60b0225b52f?auto=format&fit=crop&w=800&q=70',
+        suggestedDays: 3,
+        description: '林城避暑胜地，酸汤鱼与青岩古镇的黔中风味。',
+        tags: ['自然', '避暑', '美食'],
+        highlights: ['黄果树瀑布', '青岩古镇', '黔灵山公园', '甲秀楼', '天河潭', '花溪十里河滩', '南江大峡谷', '开阳十里画廊', '贵州省博物馆', '观山湖公园', '文昌阁', '阳明祠', '弘福寺', '香纸沟', '花果园湿地公园'],
+        lng: 106.630154,
+        lat: 26.647661,
+      },
+      {
+        id: 'lasa',
+        name: '拉萨',
+        image: 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=800&q=70',
+        suggestedDays: 5,
+        description: '日光城，布达拉宫脚下离天空最近的信仰之地。',
+        tags: ['人文', '信仰', '自然'],
+        highlights: ['布达拉宫', '大昭寺', '八廓街', '罗布林卡', '色拉寺辩经', '哲蚌寺', '纳木错', '羊卓雍措', '药王山观景台', '文成公主实景剧场', '西藏博物馆', '扎基寺', '拉鲁湿地', '帕邦喀', '龙王潭公园'],
+        lng: 91.111891,
+        lat: 29.970060,
+      },
+      {
+        id: 'xining',
+        name: '西宁',
+        image: 'https://images.unsplash.com/photo-1439066615861-d1af74d74000?auto=format&fit=crop&w=800&q=70',
+        suggestedDays: 3,
+        description: '青藏门户夏都，青海湖与茶卡盐湖之旅的起点。',
+        tags: ['自然', '小众', '民族'],
+        highlights: ['塔尔寺', '青海湖', '茶卡盐湖', '东关清真大寺', '日月山', '青海省博物馆', '藏医药文化博物馆', '南山公园', '北禅寺', '人民公园', '虎台遗址', '贵德国家地质公园', '坎布拉国家森林公园', '黑泉水库', '湟水河湿地公园'],
+        lng: 101.778232,
+        lat: 36.617096,
+      },
+      {
+        id: 'dunhuang',
+        name: '敦煌',
+        image: 'https://images.unsplash.com/photo-1509316785289-025f5b846b35?auto=format&fit=crop&w=800&q=70',
+        suggestedDays: 3,
+        description: '大漠明珠，莫高窟飞天与月牙泉的千年丝路绝唱。',
+        tags: ['人文', '历史', '小众'],
+        highlights: ['莫高窟', '鸣沙山月牙泉', '雅丹魔鬼城', '玉门关', '阳关', '沙洲夜市', '敦煌博物馆', '汉长城遗址', '西千佛洞', '榆林窟', '雷音寺', '白马塔', '党河风情线', '石油小镇影视基地', '三危山'],
+        lng: 94.661621,
+        lat: 40.142108,
+      },
+      {
+        id: 'pingyao',
+        name: '平遥',
+        image: 'https://images.unsplash.com/photo-1526129318478-62ed807ebdf9?auto=format&fit=crop&w=800&q=70',
+        suggestedDays: 2,
+        description: '保存最完整的明清古县城，晋商文化的活化石。',
+        tags: ['人文', '历史', '小众'],
+        highlights: ['平遥古城墙', '日升昌票号', '平遥县衙', '中国镖局博物馆', '平遥文庙', '城隍庙', '双林寺', '镇国寺', '王家大院', '乔家大院', '绵山', '又见平遥演出', '明清一条街', '市楼', '平遥电影宫'],
+        lng: 112.176066,
+        lat: 37.196147,
+      }
+    ];
+
+    // ============================================================
+    // AI 行程模块：硅基流动 SiliconFlow（OpenAI 兼容接口）
+    // Key 获取：https://cloud.siliconflow.cn → API 密钥（注册即送 2000 万 Token）
+    // 配置由用户在页面「AI 引擎设置」中填写，仅保存在浏览器 localStorage
+    // ============================================================
+    const DEFAULT_AI_MODEL = 'Qwen/Qwen2.5-7B-Instruct'; // 硅基流动永久免费模型
+    const AI_CONFIG_STORAGE_KEY = 'travel-planner-ai-config';
+
+    let aiLoading = false; // AI 请求进行中标记，防止重复提交
+
+    // 读取 AI 配置（Key + 模型名，模型名缺省为硅基流动默认免费模型）
+    function getAIConfig() {
+      try {
+        const cfg = JSON.parse(localStorage.getItem(AI_CONFIG_STORAGE_KEY) || '{}');
+        const model = typeof cfg.model === 'string' ? cfg.model.trim() : '';
+        return {
+          apiKey: typeof cfg.apiKey === 'string' ? cfg.apiKey.trim() : '',
+          // 旧配置里残留的智谱模型名视为未设置，回落到硅基流动默认模型
+          model: model && model !== 'glm-4-flash' ? model : DEFAULT_AI_MODEL
+        };
+      } catch (e) {
+        return { apiKey: '', model: DEFAULT_AI_MODEL };
+      }
+    }
+
+    // 写入 AI 配置
+    function saveAIConfig(apiKey, model) {
+      localStorage.setItem(AI_CONFIG_STORAGE_KEY, JSON.stringify({ apiKey: apiKey.trim(), model: model.trim() }));
+    }
+
+    // 设置面板：页面加载时回填已保存的配置
+    const aiApiKeyInput = document.getElementById('ai-api-key');
+    const aiModelInput = document.getElementById('ai-model-name');
+    const aiSaveTip = document.getElementById('ai-save-tip');
+
+    (function initAISettings() {
+      const cfg = getAIConfig();
+      aiApiKeyInput.value = cfg.apiKey;
+      aiModelInput.value = cfg.model;
+    })();
+
+    // 保存配置到 localStorage
+    document.getElementById('ai-save-btn').addEventListener('click', () => {
+      saveAIConfig(aiApiKeyInput.value, aiModelInput.value);
+      aiSaveTip.classList.remove('hidden');
+      setTimeout(() => aiSaveTip.classList.add('hidden'), 2000);
+    });
+
+    // 从 AI 返回文本中稳健地提取并校验 JSON 行程数组（兼容偶尔出现的 markdown 标记）
+    function parseAIItinerary(raw) {
+      let text = (raw || '').trim();
+      text = text.replace(/```(json)?/gi, '').trim();
+      const start = text.indexOf('[');
+      const end = text.lastIndexOf(']');
+      if (start === -1 || end === -1 || end <= start) throw new Error('返回内容中没有 JSON 数组');
+      const arr = JSON.parse(text.slice(start, end + 1));
+      if (!Array.isArray(arr) || !arr.length) throw new Error('JSON 结构不正确');
+      const dayPlans = arr
+        .map(day => (Array.isArray(day) ? day : [])
+          .filter(it => it && typeof it.text === 'string' && it.text.trim())
+          .map(it => ({
+            time: typeof it.time === 'string' && it.time.trim() ? it.time.trim() : '09:30',
+            text: it.text.trim()
+          })))
+        .filter(day => day.length);
+      if (!dayPlans.length) throw new Error('行程内容为空');
+      return dayPlans;
+    }
+
+    // AI 加载动画
+    function showAILoading(keyword) {
+      itinerarySection.classList.remove('hidden');
+      itinerarySummary.textContent = `正在为「${keyword}」定制专属行程…`;
+      document.getElementById('budget-pill').classList.add('hidden');
+      document.getElementById('weather-panel').classList.add('hidden');
+      document.getElementById('view-toggle').classList.add('hidden');
+      document.getElementById('refine-panel').classList.add('hidden');
+      itineraryContent.className = 'mx-auto max-w-md';
+      itineraryContent.innerHTML = `
+        <div class="flex flex-col items-center gap-4 py-16">
+          <span class="h-12 w-12 animate-spin rounded-full border-4 border-primary-200 border-t-primary-600"></span>
+          <p class="text-sm font-medium text-slate-600">AI 正在为你定制专属行程</p>
+          <p class="text-xs text-slate-400">硅基流动 AI 大模型驱动 · 通常需要 10~30 秒</p>
+        </div>`;
+      itinerarySection.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // AI 失败提示
+    function showAIError() {
+      itineraryContent.innerHTML = `
+        <div class="rounded-2xl bg-white p-10 text-center shadow-card ring-1 ring-slate-200">
+          <p class="text-3xl">😕</p>
+          <p class="mt-3 text-sm font-medium text-slate-700">AI 生成失败，请稍后重试或换个城市</p>
+          <p class="mt-1 text-xs text-slate-400">可在搜索框下方的「AI 引擎设置」中检查 Key 与模型名称</p>
+        </div>`;
+    }
+
+    // 未配置 Key 时的提示
+    function showAIMissingKey() {
+      itinerarySection.classList.remove('hidden');
+      itinerarySummary.textContent = 'AI 生成需要配置 API Key';
+      document.getElementById('budget-pill').classList.add('hidden');
+      document.getElementById('weather-panel').classList.add('hidden');
+      document.getElementById('view-toggle').classList.add('hidden');
+      itineraryContent.className = 'mx-auto max-w-md';
+      itineraryContent.innerHTML = `
+        <div class="rounded-2xl bg-white p-10 text-center shadow-card ring-1 ring-slate-200">
+          <p class="text-3xl">🔑</p>
+          <p class="mt-3 text-sm font-medium text-slate-700">请先在 AI 引擎设置中填入 API Key</p>
+          <p class="mt-1 text-xs text-slate-400">Key 仅保存在你自己的浏览器中，不会上传到任何服务器</p>
+        </div>`;
+      itinerarySection.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // 调用硅基流动 API，为本地 30 城之外的目的地生成行程
+    async function fetchAIItinerary(keyword, days, budget, styles) {
+      if (aiLoading) return;
+      const cfg = getAIConfig();
+      if (!cfg.apiKey) { // 未配置 Key：提示并停止发送请求
+        showAIMissingKey();
+        return;
+      }
+      aiLoading = true;
+      showAILoading(keyword);
+
+      const totalDays = days || 3;
+      const style = resolveStyle(styles);
+      const [minSpots, maxSpots] = style.spotsPerDay;
+      const styleLine = styles.length ? `旅行风格偏好：${style.label}，请据此安排节奏与景点类型。\n` : '';
+      const budgetLine = budget ? `人均预算约 ${budget} 元/天，安排需符合该消费档位。\n` : '';
+      const prompt = `请为我制定一份「${keyword}」的旅行行程，共 ${totalDays} 天。
+要求：
+1. 每天安排 ${minSpots} 到 ${maxSpots} 个景点或活动，时间用 HH:mm 24小时制；每天最后一项 time 固定为"晚上"，内容为休闲建议。
+2. 景点必须真实存在，并按合理地理位置顺路安排。
+3. text 字段格式为"景点/活动名称＋一句话亮点"。
+${styleLine}${budgetLine}
+严格只输出 JSON 数组（不要 markdown 代码块标记、不要任何解释文字），格式示例：
+[[{"time":"09:00","text":"xxx"},{"time":"14:30","text":"yyy"},{"time":"晚上","text":"zzz"}], [...]]`;
+
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 60000); // 60 秒超时
+
+      try {
+        const res = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${cfg.apiKey}` },
+          body: JSON.stringify({
+            model: cfg.model,
+            messages: [
+              { role: 'system', content: '你是一名专业旅行规划师，只输出纯 JSON，不输出任何多余文字。' },
+              { role: 'user', content: prompt }
+            ],
+            temperature: 0.7
+          }),
+          signal: controller.signal
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        const content = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+        const dayPlans = parseAIItinerary(content);
+
+        // 适配成本地 lastItinerary 结构后复用现有渲染管线
+        const pseudoDest = {
+          id: 'ai-' + encodeURIComponent(keyword),
+          name: keyword,
+          image: `https://picsum.photos/seed/${encodeURIComponent(keyword)}/1280/720`,
+          suggestedDays: totalDays,
+          description: '由硅基流动 AI 大模型根据你的偏好实时定制的专属行程。',
+          tags: ['AI 定制'],
+          highlights: dayPlans.flat().map(it => it.text),
+          lng: null,
+          lat: null
+        };
+        lastItinerary = { dest: pseudoDest, totalDays, style, dayPlans, fallbackNote: '', matched: false, budgetPerDay: budget ? Number(budget) : null, viaAI: true };
+        renderItinerary();
+        fetchWeather(pseudoDest);
+      } catch (err) {
+        console.warn('AI 行程生成失败:', err);
+        showAIError();
+      } finally {
+        clearTimeout(timer);
+        aiLoading = false;
+      }
+    }
+
+    // ============================================================
+    // AI 对话式微调：基于当前行程 JSON 做局部修改
+    // ============================================================
+
+    // 微调请求：带上当前行程 JSON，要求 AI 保留结构、只改局部
+    async function refineAIItinerary(instruction) {
+      if (aiLoading || !lastItinerary) return;
+      const cfg = getAIConfig();
+      if (!cfg.apiKey) {
+        showAIMissingKey();
+        return;
+      }
+
+      const btn = document.getElementById('refine-btn');
+      aiLoading = true;
+      btn.disabled = true;
+      btn.textContent = 'AI 微调中…';
+
+      const prompt = `这是当前的一份 ${lastItinerary.dest.name} 旅行行程 JSON（外层数组代表每一天，内层数组代表当天的安排，每项格式为 {"time":"HH:mm 或 晚上","text":"景点/活动描述"}）：
+${JSON.stringify(lastItinerary.dayPlans)}
+
+请根据用户指令对这份行程进行微调：「${instruction}」
+
+要求：
+1. 保留 JSON 的整体结构与天数数量，只修改与指令相关的局部内容，未涉及的部分原样保留。
+2. 修改后的行程需顺路合理、时间衔接自然，time 保持 "HH:mm" 或 "晚上" 格式。
+3. 严格只输出修改后的完整 JSON 数组（不要 markdown 代码块标记、不要任何解释文字），格式与输入完全一致。`;
+
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 60000);
+
+      try {
+        const res = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${cfg.apiKey}` },
+          body: JSON.stringify({
+            model: cfg.model,
+            messages: [
+              { role: 'system', content: '你是一名专业旅行规划师，只输出纯 JSON，不输出任何多余文字。' },
+              { role: 'user', content: prompt }
+            ],
+            temperature: 0.5
+          }),
+          signal: controller.signal
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        const content = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+        const dayPlans = parseAIItinerary(content);
+
+        // 只替换行程数据：视图切换/复制/天气/预算等状态全部保留复用
+        lastItinerary.dayPlans = dayPlans;
+        lastItinerary.dest.highlights = dayPlans.flat().map(it => it.text);
+        if (dayPlans.length !== lastItinerary.totalDays) lastItinerary.totalDays = dayPlans.length;
+        renderItinerary();
+      } catch (err) {
+        console.warn('AI 微调失败:', err);
+        itineraryContent.insertAdjacentHTML('beforebegin',
+          '<p id="refine-error" class="mt-2 text-center text-xs font-medium text-red-500">⚠️ AI 微调失败，请稍后重试，当前行程已保留</p>');
+        setTimeout(() => { const el = document.getElementById('refine-error'); if (el) el.remove(); }, 3000);
+      } finally {
+        clearTimeout(timer);
+        aiLoading = false;
+        btn.disabled = false;
+        btn.textContent = '发送微调';
+      }
+    }
+
+    // 微调面板事件：点击按钮或按 Enter 发送
+    document.getElementById('refine-btn').addEventListener('click', () => {
+      const input = document.getElementById('refine-input');
+      const instruction = input.value.trim();
+      if (!instruction) return;
+      input.value = '';
+      refineAIItinerary(instruction);
+    });
+
+    document.getElementById('refine-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        document.getElementById('refine-btn').click();
+      }
+    });
+
+    // 本地兜底占位图：不依赖任何网络，奶油纸面 + 虚线墨框 + 城市名，与全站复古风格统一
+    function imgPlaceholder(seed, w, h) {
+      let label = seed;
+      try { label = decodeURIComponent(seed); } catch (e) { /* 保留原样 */ }
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">
+        <rect width="${w}" height="${h}" fill="#F8F5E6"/>
+        <rect x="10" y="10" width="${w - 20}" height="${h - 20}" rx="18" fill="none" stroke="#1E293B" stroke-width="3" stroke-dasharray="12 9"/>
+        <text x="50%" y="46%" text-anchor="middle" font-family="sans-serif" font-size="${Math.round(h / 8)}" font-weight="bold" fill="#2E5C43">${label}</text>
+        <text x="50%" y="60%" text-anchor="middle" font-family="sans-serif" font-size="${Math.round(h / 16)}" fill="#94A3B8">✈️ 图片在路上 · 稍后再来看</text>
+      </svg>`;
+      return 'data:image/svg+xml,' + encodeURIComponent(svg);
+    }
+
+    // 单张卡片 HTML 模板：图片骨架屏 + 右上角收藏按钮
+    function cardTemplate(d) {
+      const tagsHTML = d.tags.map(t => `<span class="tag">${t}</span>`).join('');
+      const fav = isFavorite(d.id);
+      return `
+        <article data-id="${d.id}"
+          class="group cursor-pointer overflow-hidden rounded-2xl bg-white shadow-card ring-1 ring-slate-200 transition hover:-translate-y-1 hover:shadow-xl">
+          <div class="relative h-44 overflow-hidden bg-slate-200 animate-pulse">
+            <img src="${d.image}" alt="${d.name}" loading="lazy"
+              onload="this.classList.remove('opacity-0');if(this.parentElement)this.parentElement.classList.remove('animate-pulse','bg-slate-200');"
+              onerror="this.onload=null;this.classList.remove('opacity-0');if(this.parentElement)this.parentElement.classList.remove('animate-pulse','bg-slate-200');if(!this.dataset.fb){this.dataset.fb='1';this.src='https://picsum.photos/seed/${d.id}/640/400';}else{this.onerror=null;this.src=imgPlaceholder('${d.id}',640,400);}"
+              class="h-full w-full object-cover opacity-0 transition duration-500 group-hover:scale-105" />
+            <button type="button" data-fav="${d.id}" aria-label="${fav ? '取消收藏' : '收藏该城市'}"
+              class="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-base shadow-md backdrop-blur transition hover:scale-110 active:scale-90">
+              ${fav ? '❤️' : '🤍'}
+            </button>
+          </div>
+          <div class="p-5">
+            <div class="flex items-center justify-between">
+              <h3 class="text-lg font-bold text-slate-900">${d.name}</h3>
+              <span class="rounded-full bg-primary-50 px-2.5 py-0.5 text-xs font-medium text-primary-700">建议 ${d.suggestedDays} 天</span>
+            </div>
+            <p class="mt-2 line-clamp-2 text-sm text-slate-500">${d.description}</p>
+            <div class="mt-3 flex flex-wrap gap-1.5">${tagsHTML}</div>
+          </div>
+        </article>`;
+    }
+
+    // 当前卡片列表与高亮城市（收藏刷新重渲染时复用）
+    let currentCardList = null;
+    let highlightedDestId = null;
+
+    // 渲染目的地卡片到网格（传入 list 实现随机抽取 / 心愿单 / 匹配置顶等过滤）
+    function renderDestinations(list = DESTINATIONS) {
+      currentCardList = list;
+      const grid = document.getElementById('destination-grid');
+      grid.innerHTML = list.map(cardTemplate).join('');
+      applyHighlightRing();
+    }
+
+    // 重渲染后重新应用匹配城市的高亮描边
+    function applyHighlightRing() {
+      if (!highlightedDestId) return;
+      const card = document.querySelector(`#destination-grid article[data-id="${highlightedDestId}"]`);
+      if (card) {
+        card.classList.remove('ring-1', 'ring-slate-200');
+        card.classList.add('ring-2', 'ring-primary-500');
+      }
+    }
+
+    // 随机抽取 n 个目的地（洗牌法：从副本中随机取出，不重复；source 缺省为全量数据）
+    function pickRandomDestinations(n = 8, source = DESTINATIONS) {
+      const pool = [...source];
+      const picked = [];
+      while (picked.length < n && pool.length) {
+        picked.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
+      }
+      return picked;
+    }
+
+    // 随机渲染 8 个目的地卡片
+    function renderRandomDestinations() {
+      renderDestinations(pickRandomDestinations(8));
+    }
+
+    // 换一批：重新随机抽取渲染（同时退出心愿单模式）
+    document.getElementById('shuffle-btn').addEventListener('click', () => {
+      wishlistMode = false;
+      updateWishlistBtn();
+      renderRandomDestinations();
+    });
+
+    // ============================================================
+    // 收藏心愿单：数据存于 localStorage，支持"只看收藏"模式
+    // ============================================================
+    const FAV_STORAGE_KEY = 'travel-planner-favorites';
+    let wishlistMode = false;
+
+    function getFavorites() {
+      try {
+        const arr = JSON.parse(localStorage.getItem(FAV_STORAGE_KEY) || '[]');
+        return Array.isArray(arr) ? arr : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function isFavorite(id) {
+      return getFavorites().includes(id);
+    }
+
+    // 收藏/取消收藏，并刷新当前卡片列表以同步心形状态
+    function toggleFavorite(id) {
+      const favs = getFavorites();
+      const idx = favs.indexOf(id);
+      if (idx === -1) favs.push(id);
+      else favs.splice(idx, 1);
+      localStorage.setItem(FAV_STORAGE_KEY, JSON.stringify(favs));
+      refreshCardList();
+      updateWishlistBtn();
+    }
+
+    // 按当前模式刷新卡片列表（普通模式重渲染原列表；心愿单模式重渲染收藏列表）
+    function refreshCardList() {
+      if (wishlistMode) {
+        const favs = getFavorites().map(id => DESTINATIONS.find(d => d.id === id)).filter(Boolean);
+        if (!favs.length) { // 收藏被清空则退出心愿单模式
+          wishlistMode = false;
+          updateWishlistBtn();
+          renderRandomDestinations();
+          return;
+        }
+        renderDestinations(favs);
+      } else {
+        renderDestinations(currentCardList);
+      }
+    }
+
+    // 同步导航栏心愿单按钮的文案与高亮态
+    function updateWishlistBtn() {
+      const btn = document.getElementById('wishlist-btn');
+      if (!btn) return;
+      const n = getFavorites().length;
+      btn.classList.toggle('nav-btn-active', wishlistMode);
+      btn.textContent = wishlistMode ? '🎒 返回全部' : `❤️ 心愿单${n ? ` (${n})` : ''}`;
+    }
+
+    // 心愿单按钮：切换"只看收藏"与"随机推荐"
+    document.getElementById('wishlist-btn').addEventListener('click', () => {
+      wishlistMode = !wishlistMode;
+      if (wishlistMode) {
+        const favs = getFavorites().map(id => DESTINATIONS.find(d => d.id === id)).filter(Boolean);
+        if (!favs.length) { // 空心愿单：不进入模式，仅提示
+          wishlistMode = false;
+          document.getElementById('destination-grid').innerHTML = `
+            <div class="col-span-full rounded-2xl border border-dashed border-slate-300 p-10 text-center text-sm text-slate-400">
+              ❤️ 心愿单还是空的 —— 点击卡片右上角的 ❤️ 收藏心仪的城市吧
+            </div>`;
+          updateWishlistBtn();
+          return;
+        }
+        renderDestinations(favs);
+      } else {
+        renderRandomDestinations();
+      }
+      updateWishlistBtn();
+    });
+
+    // script 位于 body 底部，DOM 已就绪：初始随机渲染 8 个 + 同步心愿单按钮
+    renderRandomDestinations();
+    updateWishlistBtn();
+
+    // ============================================================
+    // 第三步：详情弹窗（Modal）
+    // ============================================================
+
+    const modal = document.getElementById('modal');
+    const modalPanel = document.getElementById('modal-panel');
+    const modalImage = document.getElementById('modal-image');
+    const modalTitle = document.getElementById('modal-title');
+    const modalDays = document.getElementById('modal-days');
+    const modalTags = document.getElementById('modal-tags');
+    const modalDescription = document.getElementById('modal-description');
+    const modalHighlights = document.getElementById('modal-highlights');
+
+    let currentDestination = null; // 当前弹窗目的地，供第四步"生成行程"使用
+
+    // 填充弹窗内容
+    function fillModal(d) {
+      currentDestination = d;
+      // 两级兜底：源图失败 → Picsum 随机图 → 本地 SVG 占位（不再依赖网络）
+      modalImage.onerror = () => {
+        if (!modalImage.dataset.fb) {
+          modalImage.dataset.fb = '1';
+          modalImage.src = `https://picsum.photos/seed/${d.id}/1280/720`;
+        } else {
+          modalImage.onerror = null;
+          modalImage.src = imgPlaceholder(d.id, 1280, 720);
+        }
+      };
+      delete modalImage.dataset.fb; // 重开弹窗时重置兜底状态，先尝试正常加载
+      modalImage.src = d.image.replace('/640/400', '/1280/720').replace('w=800', 'w=1280'); // 弹窗用更高清的图
+      modalImage.alt = d.name;
+      modalTitle.textContent = d.name;
+      modalDays.textContent = `建议 ${d.suggestedDays} 天`;
+      modalTags.innerHTML = d.tags.map(t => `<span class="tag">${t}</span>`).join('');
+      modalDescription.textContent = d.description;
+      modalHighlights.innerHTML = d.highlights
+        .map(h => `<li class="flex items-start gap-2"><span class="mt-0.5 shrink-0 text-primary-600">✦</span><span>${h}</span></li>`)
+        .join('');
+      renderModalMap(d);
+    }
+
+    // ============================================================
+    // 地图模块：高德静态地图（Web 服务 API）
+    // 免费 Key 申请步骤：
+    //   1. 打开 https://lbs.amap.com 并注册/登录
+    //   2. 进入「控制台」→「应用管理」→「创建新应用」
+    //   3. 在应用下「添加 Key」，服务平台选择「Web服务」
+    //   4. 复制生成的 Key 粘贴到下面的 AMAP_KEY 引号里即可
+    // ============================================================
+    const AMAP_KEY = '0cb506f1c23ae96f79ff43fadf26725f';
+
+    // 生成高德静态地图 URL（带中心点坐标与标记）
+    function amapStaticUrl(d) {
+      const loc = `${d.lng},${d.lat}`;
+      return `https://restapi.amap.com/v3/staticmap?location=${loc}&zoom=11&size=600*300&scale=2&markers=mid,0xFF5548,A:${loc}&key=${AMAP_KEY}`;
+    }
+
+    // 无 Key 时的占位示意图：内联 SVG 本地生成，不依赖任何网络服务，国内稳定可用
+    function mapPlaceholder(d) {
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="300">
+        <rect width="600" height="300" fill="#F8F5E6"/>
+        <path d="M0 225 Q 150 195 300 235 T 600 215" stroke="#a7d8e8" stroke-width="30" fill="none" opacity="0.8"/>
+        <path d="M0 40 L 600 120" stroke="#fde68a" stroke-width="8" opacity="0.9"/>
+        <path d="M0 80 H 600" stroke="#ffffff" stroke-width="10"/>
+        <path d="M0 160 H 600" stroke="#ffffff" stroke-width="6"/>
+        <path d="M140 0 V 300" stroke="#ffffff" stroke-width="8"/>
+        <path d="M420 0 V 300" stroke="#ffffff" stroke-width="6"/>
+        <circle cx="300" cy="152" r="26" fill="#2E5C43" opacity="0.15"/>
+        <path d="M300 118 c -14 0 -25 11 -25 25 c 0 18 25 44 25 44 c 0 0 25 -26 25 -44 c 0 -14 -11 -25 -25 -25 z" fill="#ef4444"/>
+        <circle cx="300" cy="143" r="9" fill="#ffffff"/>
+        <text x="300" y="216" text-anchor="middle" font-family="sans-serif" font-size="15" font-weight="bold" fill="#334155">${d.name} · ${d.lng}, ${d.lat}</text>
+        <text x="300" y="238" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#94a3b8">占位示意图 · 填入高德 Key 后显示真实地图</text>
+      </svg>`;
+      return `<img alt="位置示意" class="h-full w-full object-cover" src="data:image/svg+xml,${encodeURIComponent(svg)}" />`;
+    }
+
+    // 渲染位置示意：有 Key 走高德静态地图接口（返回单张完整图片），无 Key 用占位图
+    function renderModalMap(d) {
+      const mapBox = document.getElementById('modal-map');
+      mapBox.innerHTML = AMAP_KEY
+        ? `<img alt="位置示意" class="h-full w-full object-cover" loading="lazy" src="${amapStaticUrl(d)}" />`
+        : mapPlaceholder(d);
+      document.getElementById('map-note').textContent = AMAP_KEY
+        ? '地图数据 © 高德地图'
+        : '占位示意图 · 申请高德 Key 后显示真实地图';
+    }
+
+    // 打开弹窗：移除隐藏类 + 启动过渡动画
+    function openModal(id) {
+      const d = DESTINATIONS.find(item => item.id === id);
+      if (!d) return;
+      fillModal(d);
+      modal.classList.remove('invisible', 'opacity-0');
+      modalPanel.classList.remove('scale-95', 'translate-y-4');
+      document.body.classList.add('overflow-hidden'); // 锁定背景滚动
+    }
+
+    // 关闭弹窗：加回隐藏类 + 复位动画
+    function closeModal() {
+      modal.classList.add('invisible', 'opacity-0');
+      modalPanel.classList.add('scale-95', 'translate-y-4');
+      document.body.classList.remove('overflow-hidden');
+    }
+
+    // 事件委托：点击收藏按钮 → 切换收藏（不打开弹窗）；点击卡片其余区域 → 打开弹窗
+    document.getElementById('destination-grid').addEventListener('click', (e) => {
+      const favBtn = e.target.closest('button[data-fav]');
+      if (favBtn) {
+        toggleFavorite(favBtn.dataset.fav);
+        return;
+      }
+      const card = e.target.closest('article[data-id]');
+      if (card) openModal(card.dataset.id);
+    });
+
+    // 关闭方式一：点击 X 按钮
+    document.getElementById('modal-close').addEventListener('click', closeModal);
+
+    // 关闭方式二：点击遮罩层背景（点击弹窗面板本身不关闭）
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+
+    // 关闭方式三：按 ESC 键
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !modal.classList.contains('invisible')) closeModal();
+    });
+
+    // ============================================================
+    // 第四步：行程规则引擎
+    // ============================================================
+
+    // 风格规则表：每天景点数区间 + 晚间建议
+    const STYLE_CONFIG = {
+      relax:   { label: '放松度假', spotsPerDay: [2, 3], evening: '在海边或湖畔悠闲散步，早点休息' },
+      intense: { label: '特种兵式', spotsPerDay: [4, 5], evening: '拖着灌铅的双腿回酒店瘫倒（致敬特种兵）' },
+      nature:  { label: '自然景观', spotsPerDay: [3, 4], evening: '找个视野好的地方看日落' },
+      food:    { label: '美食探索', spotsPerDay: [3, 4], evening: '钻进当地夜市，把小吃吃个遍' },
+      culture: { label: '人文历史', spotsPerDay: [3, 4], evening: '翻看白天拍的照片，回味历史故事' },
+      hidden:  { label: '小众深度', spotsPerDay: [2, 3], evening: '找一家本地人才知道的安静小馆' }
+    };
+    const DEFAULT_STYLE = { label: '均衡节奏', spotsPerDay: [3, 4], evening: '自由活动，感受城市夜色' };
+
+    // 每天的具体时间点（特种兵从早上 7 点半开始跑）
+    const TIME_SLOTS = {
+      2: ['09:30', '14:30'],
+      3: ['09:00', '13:30', '17:00'],
+      4: ['08:30', '10:30', '14:00', '16:30'],
+      5: ['07:30', '09:30', '11:30', '14:30', '16:30']
+    };
+
+    const searchForm = document.getElementById('search-form');
+    const searchDestinationInput = document.getElementById('search-destination');
+    const searchDaysSelect = document.getElementById('search-days');
+    const searchBudgetSelect = document.getElementById('search-budget');
+    const itinerarySection = document.getElementById('itinerary-section');
+    const itineraryContent = document.getElementById('itinerary-content');
+    const itinerarySummary = document.getElementById('itinerary-summary');
+    const viewCardBtn = document.getElementById('view-card');
+    const viewTimelineBtn = document.getElementById('view-timeline');
+
+    let lastItinerary = null; // 最近一次生成的行程数据（含 dayPlans），供视图切换复用
+    let currentView = 'card'; // 当前视图状态：card | timeline
+
+    // 风格芯片：点击切换选中态（事件委托）
+    document.getElementById('style-chips').addEventListener('click', (e) => {
+      const chip = e.target.closest('button[data-style]');
+      if (chip) chip.classList.toggle('chip-active');
+    });
+
+    // 获取当前选中的风格 id 列表
+    function getSelectedStyles() {
+      return [...document.querySelectorAll('#style-chips .chip-active')]
+        .map(chip => chip.dataset.style);
+    }
+
+    // 目的地匹配：包含式模糊匹配（"我想去成都玩" → 成都），找不到则随机兜底
+    function findDestination(keyword) {
+      const q = (keyword || '').trim();
+      const found = q && DESTINATIONS.find(d => q.includes(d.name));
+      if (found) return { dest: found, matched: true };
+      const random = DESTINATIONS[Math.floor(Math.random() * DESTINATIONS.length)];
+      const note = q ? `没有找到「${q}」，为你随机推荐` : '未指定目的地，为你随机推荐';
+      return { dest: random, matched: false, note };
+    }
+
+    // 合并多个风格规则：展示标签拼接，节奏取景点数上限最高的风格为主导
+    function resolveStyle(styles) {
+      const configs = styles.map(s => STYLE_CONFIG[s]).filter(Boolean);
+      if (!configs.length) return DEFAULT_STYLE;
+      const dominant = configs.reduce((a, b) => (b.spotsPerDay[1] > a.spotsPerDay[1] ? b : a));
+      return { label: configs.map(c => c.label).join(' + '), spotsPerDay: dominant.spotsPerDay, evening: dominant.evening };
+    }
+
+    // 规划引擎模式：local（本地极速）| ai（AI 智能规划）
+    let engineMode = 'local';
+    document.getElementById('engine-switch').addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-engine]');
+      if (!btn || btn.dataset.engine === engineMode) return;
+      engineMode = btn.dataset.engine;
+      document.querySelectorAll('#engine-switch button[data-engine]').forEach(b => {
+        b.classList.toggle('view-btn-active', b.dataset.engine === engineMode);
+      });
+    });
+
+    // 核心：生成逐日行程
+    function generateItinerary({ keyword = '', days = null, budget = null, styles = [], dest = null } = {}) {
+      if (aiLoading) return; // AI 请求进行中，忽略新的生成请求
+      // 0. 引擎调度：AI 智能规划模式下，任何输入都直接交给 AI，不查本地 DESTINATIONS
+      if (engineMode === 'ai') {
+        const kw = (keyword || (dest && dest.name) || '').trim();
+        if (kw) {
+          if (getAIConfig().apiKey) {
+            fetchAIItinerary(kw, days, budget, styles);
+          } else {
+            showAIMissingKey();
+          }
+          return;
+        }
+        // AI 模式下未输入目的地：回落到本地随机推荐
+      }
+
+      // 1. 确定目的地（弹窗按钮直接传 dest；搜索框走关键词匹配）
+      let matched = true, fallbackNote = '';
+      if (!dest) {
+        const r = findDestination(keyword);
+        // 优先级：先判断是否未匹配本地数据 → 未匹配时走 AI（已配置 Key）或提示配置（未配置）；匹配/空输入才走本地逻辑
+        if (!r.matched && (keyword || '').trim()) {
+          if (getAIConfig().apiKey) {
+            fetchAIItinerary(keyword.trim(), days, budget, styles);
+          } else {
+            showAIMissingKey();
+          }
+          return;
+        }
+        dest = r.dest;
+        matched = r.matched;
+        if (!matched) fallbackNote = r.note;
+      }
+
+      // 2. 确定天数（未选则用目的地建议天数）与预算档位
+      const totalDays = days || dest.suggestedDays;
+      const budgetPerDay = budget ? Number(budget) : null;
+
+      // 3. 确定节奏
+      const style = resolveStyle(styles);
+      const [minSpots, maxSpots] = style.spotsPerDay;
+      const spotCountOfDay = (i) => minSpots + (i % (maxSpots - minSpots + 1)); // 在区间内交替
+
+      // 4. 构建景点池：亮点循环复用，第二轮起标记"深度二刷"
+      const totalNeeded = Array.from({ length: totalDays }, (_, i) => spotCountOfDay(i)).reduce((a, b) => a + b, 0);
+      const pool = [];
+      for (let i = 0; pool.length < totalNeeded; i++) {
+        const h = dest.highlights[i % dest.highlights.length];
+        pool.push(i < dest.highlights.length ? h : `${h} · 深度二刷`);
+      }
+
+      // 5. 逐日分配景点 + 晚间安排
+      const dayPlans = [];
+      let cursor = 0;
+      for (let i = 0; i < totalDays; i++) {
+        const count = spotCountOfDay(i);
+        const slots = TIME_SLOTS[count];
+        const items = [];
+        for (let j = 0; j < count; j++) items.push({ time: slots[j], text: pool[cursor++] });
+        if (count < 5) items.push({ time: '晚上', text: style.evening });
+        dayPlans.push(items);
+      }
+
+      // 存入全局状态，供视图切换时复用渲染
+      lastItinerary = { dest, totalDays, style, dayPlans, fallbackNote, matched, budgetPerDay, viaAI: false };
+      renderItinerary();
+      fetchWeather(dest); // 异步加载天气，失败只显示提示
+    }
+
+    // 渲染行程结果区：更新摘要/预算胶囊，并按当前视图分发渲染
+    function renderItinerary() {
+      const { dest, totalDays, style, dayPlans, fallbackNote, matched, budgetPerDay, viaAI } = lastItinerary;
+
+      itinerarySummary.textContent =
+        `${dest.name} · ${totalDays} 天行程 · ${style.label}${fallbackNote ? `（${fallbackNote}）` : ''}`;
+      if (viaAI) { // AI 引擎专属标记
+        const tag = document.createElement('span');
+        tag.className = 'ai-tag';
+        tag.textContent = '🤖 AI 实时生成';
+        itinerarySummary.appendChild(tag);
+      }
+
+      // 预算胶囊：选择具体档位才显示（总金额 = 天数 × 每天预算）
+      const budgetPill = document.getElementById('budget-pill');
+      if (budgetPerDay) {
+        document.getElementById('budget-amount').textContent = (budgetPerDay * totalDays).toLocaleString();
+        budgetPill.classList.remove('hidden');
+      } else {
+        budgetPill.classList.add('hidden');
+      }
+
+      // 生成后显示复制按钮与视图切换按钮并同步高亮
+      document.getElementById('copy-btn').classList.remove('hidden');
+      document.getElementById('view-toggle').classList.remove('hidden');
+      // AI 微调面板：仅 AI 生成的行程显示
+      document.getElementById('refine-panel').classList.toggle('hidden', !viaAI);
+      syncViewButtons();
+
+      renderCurrentView();
+
+      // 显示结果区并平滑滚动
+      itinerarySection.classList.remove('hidden');
+      itinerarySection.scrollIntoView({ behavior: 'smooth' });
+
+      // 关键词匹配成功时：把对应卡片排到最前并高亮
+      if (matched) highlightMatchedCard(dest.id);
+    }
+
+    // 按当前视图状态渲染行程内容（卡片 / 时间轴）
+    function renderCurrentView() {
+      const { dayPlans } = lastItinerary;
+      if (currentView === 'card') {
+        itineraryContent.className = 'grid gap-6 lg:grid-cols-2';
+        itineraryContent.innerHTML = dayPlans.map(dayCardHTML).join('');
+      } else {
+        renderItineraryTimeline();
+      }
+    }
+
+    // 单日卡片模板（卡片视图）
+    function dayCardHTML(items, i) {
+      return `
+        <div class="rounded-2xl bg-white p-5 shadow-card ring-1 ring-slate-200 sm:p-6">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h3 class="text-lg font-bold text-primary-700">Day ${i + 1}</h3>
+            <span class="text-xs text-slate-400">${lastItinerary.style.label} · ${items.length} 个安排</span>
+          </div>
+          <ol class="mt-4 space-y-3">
+            ${items.map((item, j) => `
+              <li draggable="true" data-day="${i}" data-idx="${j}"
+                class="group flex cursor-grab gap-3 active:cursor-grabbing">
+                <span class="w-12 shrink-0 pt-0.5 text-xs font-semibold text-slate-400">${item.time}</span>
+                <p class="flex-1 border-l-2 border-primary-200 pl-3 text-sm leading-relaxed text-slate-700">
+                  <span class="ai-guide-trigger" title="点击查看该景点的 AI 攻略">${item.text}</span><span class="ai-guide-flag">✨ AI 攻略</span>
+                </p>
+                <button type="button" aria-label="删除该安排" class="del-btn">×</button>
+              </li>`).join('')}
+          </ol>
+        </div>`;
+    }
+
+    // 时间轴视图：垂直主线 + 数字节点圆点，每天作为节点挂在线上
+    function renderItineraryTimeline() {
+      const { style, dayPlans } = lastItinerary;
+      itineraryContent.className = 'mx-auto max-w-3xl';
+      itineraryContent.innerHTML = `
+        <div class="ml-1 border-l-2 border-primary-200 pl-6 sm:ml-4 sm:pl-8">
+          ${dayPlans.map((items, i) => `
+            <div class="relative pb-8 last:pb-0">
+              <span class="absolute -left-[32px] top-1 flex h-[18px] w-[18px] items-center justify-center rounded-full bg-primary-600 text-[10px] font-bold text-white ring-4 ring-primary-100 sm:-left-[40px]">${i + 1}</span>
+              <div class="rounded-2xl bg-white p-5 shadow-card ring-1 ring-slate-200">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <h3 class="text-lg font-bold text-primary-700">Day ${i + 1}</h3>
+                  <span class="text-xs text-slate-400">${style.label} · ${items.length} 个安排</span>
+                </div>
+                <ol class="mt-4 space-y-3">
+                  ${items.map((item, j) => `
+                    <li draggable="true" data-day="${i}" data-idx="${j}"
+                      class="group flex cursor-grab gap-3 active:cursor-grabbing">
+                      <span class="w-12 shrink-0 pt-0.5 text-xs font-semibold text-slate-400">${item.time}</span>
+                      <p class="flex-1 text-sm leading-relaxed text-slate-700">
+                        <span class="ai-guide-trigger" title="点击查看该景点的 AI 攻略">${item.text}</span><span class="ai-guide-flag">✨ AI 攻略</span>
+                      </p>
+                      <button type="button" aria-label="删除该安排" class="del-btn">×</button>
+                    </li>`).join('')}
+                </ol>
+              </div>
+            </div>`).join('')}
+        </div>`;
+    }
+
+    // 视图切换按钮：同步高亮状态
+    function syncViewButtons() {
+      viewCardBtn.classList.toggle('view-btn-active', currentView === 'card');
+      viewTimelineBtn.classList.toggle('view-btn-active', currentView === 'timeline');
+    }
+
+    viewCardBtn.addEventListener('click', () => {
+      if (!lastItinerary || currentView === 'card') return;
+      currentView = 'card';
+      syncViewButtons();
+      renderCurrentView();
+    });
+
+    viewTimelineBtn.addEventListener('click', () => {
+      if (!lastItinerary || currentView === 'timeline') return;
+      currentView = 'timeline';
+      syncViewButtons();
+      renderCurrentView();
+    });
+
+    // 把当前行程拼接成格式化纯文本
+    function itineraryToText() {
+      const { dest, totalDays, style, dayPlans } = lastItinerary;
+      const lines = [`📍 ${dest.name} ${totalDays}天行程（${style.label}）`, ''];
+      dayPlans.forEach((items, i) => {
+        lines.push(`Day ${i + 1}:`);
+        items.forEach(it => lines.push(`${it.time} ${it.text}`));
+        lines.push('');
+      });
+      lines.push('—— 由「趣行 Travel」生成');
+      return lines.join('\n');
+    }
+
+    // 复制行程到剪贴板：成功后按钮短暂变为"已复制"
+    document.getElementById('copy-btn').addEventListener('click', async () => {
+      if (!lastItinerary) return;
+      const btn = document.getElementById('copy-btn');
+      const text = itineraryToText();
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch (e) {
+        // 降级方案：file:// 或旧浏览器下 clipboard API 不可用
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
+      btn.textContent = '✅ 已复制';
+      setTimeout(() => { btn.textContent = '📋 复制行程'; }, 1500);
+    });
+
+    // 匹配的城市卡片置顶并加高亮描边：网格始终保持 8 个（匹配城市 + 随机 7 个），并退出心愿单模式
+    function highlightMatchedCard(destId) {
+      highlightedDestId = destId;
+      wishlistMode = false;
+      updateWishlistBtn();
+      const match = DESTINATIONS.find(d => d.id === destId);
+      if (!match) return;
+      const rest = pickRandomDestinations(7, DESTINATIONS.filter(d => d.id !== destId));
+      renderDestinations([match, ...rest]);
+    }
+
+    // ============================================================
+    // 行程编辑：删除 + 同天内拖拽排序（事件委托到 #itinerary-content）
+    // ============================================================
+    let dragFrom = null; // 拖拽起点 { day, idx }
+
+    // 删除：点击 × 从 dayPlans 中移除该项并重渲染当前视图
+    itineraryContent.addEventListener('click', (e) => {
+      const btn = e.target.closest('.del-btn');
+      if (!btn) return;
+      const li = btn.closest('li[data-day]');
+      if (!li) return;
+      lastItinerary.dayPlans[li.dataset.day].splice(li.dataset.idx, 1);
+      normalizeDayTimes();
+      renderCurrentView();
+    });
+
+    // 按下删除按钮的瞬间禁用拖拽，避免误触发 dragstart
+    itineraryContent.addEventListener('mousedown', (e) => {
+      if (!e.target.closest('.del-btn')) return;
+      const li = e.target.closest('li[data-day]');
+      if (li) li.draggable = false;
+    });
+
+    itineraryContent.addEventListener('dragstart', (e) => {
+      const li = e.target.closest('li[data-day]');
+      if (!li) return;
+      dragFrom = { day: +li.dataset.day, idx: +li.dataset.idx };
+      li.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', ''); // Firefox 必需
+    });
+
+    itineraryContent.addEventListener('dragover', (e) => {
+      const li = e.target.closest('li[data-day]');
+      if (!li || !dragFrom) return;
+      if (+li.dataset.day !== dragFrom.day) return; // 只允许同一天内排序
+      e.preventDefault(); // 允许在此放置
+      e.dataTransfer.dropEffect = 'move';
+      itineraryContent.querySelectorAll('.drop-target').forEach(el => el.classList.remove('drop-target'));
+      li.classList.add('drop-target');
+    });
+
+    itineraryContent.addEventListener('drop', (e) => {
+      e.preventDefault();
+      const li = e.target.closest('li[data-day]');
+      if (!li || !dragFrom) return;
+      const day = +li.dataset.day;
+      if (day !== dragFrom.day) return;
+      const items = lastItinerary.dayPlans[day];
+      const [moved] = items.splice(dragFrom.idx, 1);
+      items.splice(+li.dataset.idx, 0, moved);
+      normalizeDayTimes();
+      dragFrom = null;
+      renderCurrentView();
+    });
+
+    itineraryContent.addEventListener('dragend', () => {
+      dragFrom = null;
+      itineraryContent.querySelectorAll('.dragging').forEach(el => el.classList.remove('dragging'));
+      itineraryContent.querySelectorAll('.drop-target').forEach(el => el.classList.remove('drop-target'));
+      itineraryContent.querySelectorAll('li[data-day]').forEach(li => { li.draggable = true; });
+    });
+
+    // 增删或排序后：把"晚上"项固定到当天末尾，并按剩余景点数校准时间标签
+    function normalizeDayTimes() {
+      lastItinerary.dayPlans.forEach(items => {
+        const evIdx = items.findIndex(it => it.time === '晚上');
+        if (evIdx !== -1) items.push(items.splice(evIdx, 1)[0]);
+        const n = items.filter(it => it.time !== '晚上').length;
+        const slots = TIME_SLOTS[n] || ['09:30'];
+        let j = 0;
+        items.forEach(it => { if (it.time !== '晚上') it.time = slots[j++]; });
+      });
+    }
+
+    // ============================================================
+    // 景点 AI 攻略弹窗：独立于 #modal 的专属弹窗，互不影响
+    // 点击行程列表中的景点文字 → fetchAIGuide 请求硅基流动 → 展示纯文本攻略
+    // ============================================================
+    const aiGuideModal = document.getElementById('ai-guide-modal');
+    const aiGuidePanel = document.getElementById('ai-guide-panel');
+    const aiGuideTitle = document.getElementById('ai-guide-title');
+    const aiGuideLoading = document.getElementById('ai-guide-loading');
+    const aiGuideLoadingName = document.getElementById('ai-guide-loading-name');
+    const aiGuideContent = document.getElementById('ai-guide-content');
+    const aiGuideError = document.getElementById('ai-guide-error');
+    const aiGuideErrorMsg = document.getElementById('ai-guide-error-msg');
+
+    let guideAbortController = null; // 进行中的攻略请求（新请求会中止旧请求）
+    let guideRequestId = 0;          // 请求序号：只采纳最新一次的结果，避免竞态覆盖
+    let guideLastRequest = null;     // 最近一次请求参数，供失败后"重试"使用
+
+    // ---- 弹窗三态切换 ----
+    function showGuideState(state) {
+      aiGuideLoading.classList.toggle('hidden', state !== 'loading');
+      aiGuideContent.classList.toggle('hidden', state !== 'success');
+      aiGuideError.classList.toggle('hidden', state !== 'error');
+    }
+
+    function showGuideLoading(scenicName) {
+      aiGuideTitle.textContent = `✨ 「${scenicName}」AI 攻略`;
+      aiGuideLoadingName.textContent = scenicName;
+      showGuideState('loading');
+    }
+
+    function showGuideSuccess(text) {
+      // 兜底清理 AI 偶尔带回的 markdown 代码块标记，保持纯文本展示
+      const clean = (text || '').trim().replace(/^```[a-z]*\s*/i, '').replace(/```\s*$/i, '').trim();
+      aiGuideContent.textContent = clean || 'AI 未返回有效内容，请重试。';
+      showGuideState('success');
+    }
+
+    function showGuideError(msg) {
+      aiGuideErrorMsg.textContent = msg || 'AI 攻略获取失败，请稍后重试';
+      showGuideState('error');
+    }
+
+    // ---- 打开 / 关闭（滚动锁定与 #modal 协同：仅在无任何弹窗时解锁） ----
+    function openAIGuideModal() {
+      aiGuideModal.classList.remove('invisible', 'opacity-0');
+      aiGuidePanel.classList.remove('scale-95', 'translate-y-4');
+      document.body.classList.add('overflow-hidden');
+    }
+
+    function closeAIGuideModal() {
+      aiGuideModal.classList.add('invisible', 'opacity-0');
+      aiGuidePanel.classList.add('scale-95', 'translate-y-4');
+      const otherModalOpen = !modal.classList.contains('invisible');
+      if (!otherModalOpen) document.body.classList.remove('overflow-hidden');
+    }
+
+    // ---- 核心：请求硅基流动获取景点攻略（纯文本回复） ----
+    async function fetchAIGuide(scenicName, cityName) {
+      const cfg = getAIConfig(); // 复用现有配置读取逻辑
+      if (!cfg.apiKey) {
+        guideLastRequest = null;
+        showGuideError('请先在页面「AI 引擎设置」中填入硅基流动 API Key');
+        return;
+      }
+
+      // 新请求开始前中止旧请求，防止旧结果覆盖新弹窗
+      if (guideAbortController) guideAbortController.abort();
+      const controller = new AbortController();
+      guideAbortController = controller;
+      const myId = ++guideRequestId;
+      guideLastRequest = { scenicName, cityName };
+
+      openAIGuideModal();
+      showGuideLoading(scenicName);
+
+      const cityLine = cityName ? `用户正在【${cityName}】游玩，` : '用户正在旅行途中，';
+      const prompt = `${cityLine}当前景点是【${scenicName}】，请给出该景点的游玩攻略。
+要求：
+1. 内容需包含最佳打卡点、避坑指南、周边美食三个部分。
+2. 分段清晰，每部分前用【最佳打卡点】【避坑指南】【周边美食】作小标题。
+3. 字数 200 字左右，语言口语化、实用性强。
+4. 使用纯文本回复（不要 JSON，不要 Markdown 代码块，不要加粗符号）。`;
+
+      const guideTimer = setTimeout(() => controller.abort(), 30000); // 30 秒超时
+
+      try {
+        const res = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${cfg.apiKey}` },
+          body: JSON.stringify({
+            model: cfg.model,
+            messages: [
+              { role: 'system', content: '你是一名资深旅行攻略达人，熟悉国内景点玩法，只输出纯文本攻略，不输出任何多余格式。' },
+              { role: 'user', content: prompt }
+            ],
+            temperature: 0.7
+          }),
+          signal: controller.signal
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        const content = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+        if (!content || !content.trim()) throw new Error('AI 未返回内容');
+        if (myId !== guideRequestId) return; // 已被更新的请求取代，丢弃旧结果
+        showGuideSuccess(content);
+      } catch (err) {
+        if (err.name === 'AbortError') return; // 主动中止（新请求/关闭），不算失败
+        console.warn('AI 攻略获取失败:', err);
+        if (myId !== guideRequestId) return;
+        showGuideError(err.message === 'HTTP 401'
+          ? 'API Key 无效或已过期，请检查 AI 引擎设置'
+          : 'AI 攻略获取失败，请稍后重试');
+      } finally {
+        clearTimeout(guideTimer);
+        if (myId === guideRequestId) guideAbortController = null;
+      }
+    }
+
+    // ---- 事件委托：点击行程列表中的景点文字触发攻略（独立监听器，不影响删除/拖拽） ----
+    itineraryContent.addEventListener('click', (e) => {
+      const trigger = e.target.closest('.ai-guide-trigger');
+      if (!trigger) return;
+      const li = trigger.closest('li[data-day]');
+      if (!li || !lastItinerary) return;
+      // 景点名 = 触发 span 内的第一个文本节点（排除后面的 ✨ 标记）
+      const nameNode = trigger.childNodes[0];
+      const scenicName = (nameNode && nameNode.nodeType === 3 ? nameNode.textContent : trigger.textContent).trim();
+      if (!scenicName) return;
+      fetchAIGuide(scenicName, lastItinerary.dest.name);
+    });
+
+    // 关闭方式一：点击 X 按钮
+    document.getElementById('ai-guide-close').addEventListener('click', closeAIGuideModal);
+
+    // 关闭方式二：点击遮罩层背景（点击面板本身不关闭）
+    aiGuideModal.addEventListener('click', (e) => {
+      if (e.target === aiGuideModal) closeAIGuideModal();
+    });
+
+    // 关闭方式三：按 ESC 键（独立判断，与 #modal 互不干扰）
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !aiGuideModal.classList.contains('invisible')) closeAIGuideModal();
+    });
+
+    // 失败状态下的重试按钮
+    document.getElementById('ai-guide-retry').addEventListener('click', () => {
+      if (guideLastRequest) fetchAIGuide(guideLastRequest.scenicName, guideLastRequest.cityName);
+    });
+
+    // ============================================================
+    // 天气模块：wttr.in 免费接口（format=j1 返回 JSON，含未来 3 天）
+    // ============================================================
+    let weatherToken = 0; // 请求令牌：连续生成行程时只采用最新一次的结果
+
+    function weatherEmoji(desc) {
+      const d = (desc || '').toLowerCase();
+      if (/thunder|storm/.test(d)) return '⛈️';
+      if (/snow|sleet|ice/.test(d)) return '🌨️';
+      if (/rain|drizzle|shower/.test(d)) return '🌧️';
+      if (/fog|mist|smoke/.test(d)) return '🌫️';
+      if (/cloud|overcast/.test(d)) return '☁️';
+      if (/sun|clear/.test(d)) return '☀️';
+      return '🌤️';
+    }
+
+    function weatherCardHTML(w) {
+      const noon = (w.hourly && w.hourly[4]) || {}; // 取中午 12 点的天气描述
+      const desc = (noon.weatherDesc && noon.weatherDesc[0] && noon.weatherDesc[0].value) || '—';
+      const label = new Date(w.date).toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric', weekday: 'short' });
+      return `
+        <div class="flex w-36 flex-col items-center gap-1.5 rounded-2xl bg-white p-4 shadow-card ring-1 ring-slate-200">
+          <p class="text-xs font-semibold text-slate-500">${label}</p>
+          <p class="text-3xl leading-none">${weatherEmoji(desc)}</p>
+          <p class="text-xs text-slate-600">${desc}</p>
+          <p class="text-sm font-bold text-slate-800">${w.mintempC} ~ ${w.maxtempC} °C</p>
+        </div>`;
+    }
+
+    // 异步获取目的地未来 3 天天气：任何异常都被捕获，绝不影响行程生成与展示
+    function fetchWeather(dest) {
+      const panel = document.getElementById('weather-panel');
+      const cards = document.getElementById('weather-cards');
+      const myToken = ++weatherToken;
+      panel.classList.remove('hidden');
+      cards.innerHTML = `<p class="w-full text-center text-xs text-slate-400">正在获取 ${dest.name} 天气…</p>`;
+
+      fetch(`https://wttr.in/${encodeURIComponent(dest.name)}?format=j1`)
+        .then(res => { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
+        .then(data => {
+          if (myToken !== weatherToken) return; // 已有更新的请求，丢弃旧结果
+          if (!data || !Array.isArray(data.weather) || !data.weather.length) throw new Error('数据格式错误');
+          cards.innerHTML = data.weather.slice(0, 3).map(weatherCardHTML).join('');
+        })
+        .catch(() => {
+          if (myToken !== weatherToken) return;
+          cards.innerHTML = `<p class="w-full rounded-xl bg-slate-100 py-3 text-center text-xs text-slate-400">⚠️ 天气数据获取失败</p>`;
+        });
+    }
+
+    // 搜索表单提交
+    searchForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      generateItinerary({
+        keyword: searchDestinationInput.value,
+        days: searchDaysSelect.value ? Number(searchDaysSelect.value) : null,
+        budget: searchBudgetSelect.value ? Number(searchBudgetSelect.value) : null,
+        styles: getSelectedStyles()
+      });
+    });
+
+    // 弹窗底部按钮：关闭弹窗，按当前目的地生成行程（天数沿用搜索框选择）
+    document.getElementById('modal-plan').addEventListener('click', () => {
+      if (!currentDestination) return;
+      closeModal();
+      generateItinerary({
+        dest: currentDestination,
+        days: searchDaysSelect.value ? Number(searchDaysSelect.value) : null,
+        budget: searchBudgetSelect.value ? Number(searchBudgetSelect.value) : null,
+        styles: getSelectedStyles()
+      });
+    });
+
+    // ============================================================
+    // 第五步：移动端菜单交互
+    // ============================================================
+    const menuBtn = document.getElementById('menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const menuIcon = menuBtn.querySelector('svg');
+
+    // 展开/收起菜单，并同步按钮旋转态与 aria-expanded
+    function toggleMobileMenu(forceClose = false) {
+      const willOpen = forceClose ? false : mobileMenu.classList.contains('hidden');
+      mobileMenu.classList.toggle('hidden', !willOpen);
+      menuIcon.classList.toggle('rotate-90', willOpen); // 展开时图标旋转 90°（transition 已在 SVG 上）
+      menuBtn.setAttribute('aria-expanded', String(willOpen));
+    }
+
+    // 1. 点击汉堡按钮：展开/收起（阻止冒泡，避免被下方"空白处收起"逻辑立即关闭）
+    menuBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleMobileMenu();
+    });
+
+    // 2. 点击菜单里的任意链接：照常锚点跳转，并自动收起菜单
+    mobileMenu.addEventListener('click', (e) => {
+      if (e.target.closest('a')) toggleMobileMenu(true);
+    });
+
+    // 3. 点击页面空白处（按钮与菜单面板以外）：菜单展开时自动收起
+    document.addEventListener('click', (e) => {
+      if (!mobileMenu.classList.contains('hidden') &&
+          !menuBtn.contains(e.target) &&
+          !mobileMenu.contains(e.target)) {
+        toggleMobileMenu(true);
+      }
+    });
+  </script>
+</body>
+</html>
